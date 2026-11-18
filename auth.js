@@ -77,6 +77,26 @@
     }).catch(function (e) { return { erreur: traduire(e) }; });
   };
 
+  // Demande au serveur de créer une session de paiement Whop pour la formule choisie (ex. "annuel-promo")
+  api.creerPaiement = function (cle) {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        var session = r.data && r.data.session;
+        if (!session) return { erreur: 'Connexion requise.' };
+        return fetch(cfg.url + '/functions/v1/creer-paiement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: cfg.anonKey },
+          body: JSON.stringify({ cle: cle })
+        }).then(function (rep) {
+          return rep.json().catch(function () { return {}; }).then(function (d) {
+            if (!rep.ok) return { erreur: d.detail || d.erreur || ('Erreur ' + rep.status) };
+            return d;
+          });
+        });
+      });
+    }).catch(function (e) { return { erreur: (e && e.message) || 'Erreur réseau.' }; });
+  };
+
   // E-mail du compte connecté (null si personne n'est connecté)
   api.email = function () {
     return pret.then(function (c) { return c.auth.getSession(); })

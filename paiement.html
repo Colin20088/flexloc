@@ -29,6 +29,10 @@
     .cadre { text-align: left; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px; box-shadow: 0 4px 24px rgba(0,0,0,.06); padding: 18px; min-height: 340px; }
     .chargement { color: #777; text-align: center; padding: 60px 0; }
     .securise { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font-size: .85rem; font-weight: 600; color: #16a34a; }
+    .secours { margin-top: 18px; padding: 14px 16px; border: 1px dashed #cfcfd6; border-radius: 16px; color: #555; font-size: .95rem; }
+    .secours.fort { border-color: #000; background: #fff; }
+    .secours .btn { display: inline-block; margin-top: 8px; background: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 999px; font-weight: 700; }
+    .secours .note { margin-top: 8px; font-size: .85rem; color: #777; }
     .retour { display: inline-block; margin-top: 16px; color: #888; font-size: .92rem; text-decoration: none; }
     .retour:hover { color: var(--noir); text-decoration: underline; }
     @media (max-width: 640px) { .alerte { display: block; } main { padding-top: 150px; } .nav-links li:not(:last-child) { display: none; } .cadre { padding: 10px; } }
@@ -57,6 +61,11 @@
       <div class="resume" id="resume"><strong id="nom">…</strong><span id="prix"></span></div>
       <p class="etape" id="etape"></p>
       <div class="cadre" id="cadre"><p class="chargement" id="chargement">Chargement du paiement sécurisé…</p></div>
+      <div class="secours" id="secours" hidden>
+        <p>Le formulaire ne s'affiche pas ?</p>
+        <a class="btn" id="lien-whop" href="#">Payer sur la page Whop</a>
+        <p class="note" id="note-email"></p>
+      </div>
       <p class="securise">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
         Paiement sécurisé, encaissé par Whop
@@ -102,29 +111,49 @@
         }
       };
 
-      function afficher(email) {
+      // Lien de secours vers la page de paiement hébergée par Whop
+      var secours = document.getElementById('secours');
+      var formulaireOk = false;
+      window.flexlocEtat = function () { formulaireOk = true; secours.classList.remove('fort'); };
+
+      function afficher(email, session, lien) {
+        document.getElementById('lien-whop').href = lien || ('https://whop.com/checkout/' + courant.plan + '/');
+        document.getElementById('note-email').textContent = 'Sur la page Whop, utilise la même adresse e-mail que ton compte : ' + email;
+        secours.hidden = false;
+        // Si le formulaire n'a pas donné signe de vie au bout de 8 secondes, on met le lien de secours en avant
+        setTimeout(function () { if (!formulaireOk) secours.classList.add('fort'); }, 8000);
+
         var cadre = document.getElementById('cadre');
         cadre.innerHTML = '';
         var d = document.createElement('div');
         d.id = 'whop-embedded-checkout';
         d.setAttribute('data-whop-checkout-plan-id', courant.plan);
+        if (session) d.setAttribute('data-whop-checkout-session', session);   // session créée côté serveur (ch_...)
         d.setAttribute('data-whop-checkout-prefill-email', email);    // même e-mail que le compte Flexloc
         d.setAttribute('data-whop-checkout-disable-email', 'true');   // et non modifiable
         d.setAttribute('data-whop-checkout-theme', 'light');
         d.setAttribute('data-whop-checkout-on-complete', 'flexlocPaiementOk');
+        d.setAttribute('data-whop-checkout-on-state-change', 'flexlocEtat');
         cadre.appendChild(d);
         var s = document.createElement('script');
         s.async = true; s.defer = true;
         s.src = 'https://js.whop.com/static/checkout/loader.js';
         document.head.appendChild(s);
       }
-
       function demarrer() {
         var a = window.flexlocAuth;
         if (!a || !a.configure) { document.getElementById('chargement').textContent = "La connexion n'est pas configurée."; return; }
         a.email().then(function (email) {
           if (!email) { location.href = 'connexion.html'; return; }   // il faut un compte pour rattacher l'achat
-          afficher(email);
+          // Le serveur crée la session de paiement Whop (la clé Whop reste secrète)
+          a.creerPaiement(items[0]).then(function (r) {
+            if (r && r.id) afficher(email, r.id, r.purchase_url);
+            else {
+              document.getElementById('chargement').textContent = '';
+              console.warn('Session de paiement non créée :', r && r.erreur);
+              afficher(email, null, null);   // repli : formulaire direct de l'offre + lien Whop
+            }
+          });
         });
       }
       if (document.readyState === 'complete') demarrer(); else window.addEventListener('load', demarrer);
