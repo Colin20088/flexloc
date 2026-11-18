@@ -77,6 +77,23 @@
     }).catch(function (e) { return { erreur: traduire(e) }; });
   };
 
+  // Infos du compte connecté + ses abonnements (la base ne renvoie que les lignes de cet e-mail)
+  api.espace = function () {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        var session = r.data && r.data.session;
+        if (!session) return { connecte: false };
+        return c.from('abonnements')
+          .select('membership_id, offre, status, current_period_end, cancel_at_period_end, manage_url, updated_at')
+          .order('updated_at', { ascending: false })
+          .then(function (res) {
+            if (res.error) return { connecte: true, email: session.user.email, erreur: res.error.message };
+            return { connecte: true, email: session.user.email, abonnements: res.data || [] };
+          });
+      });
+    }).catch(function (e) { return { connecte: false, erreur: traduire(e) }; });
+  };
+
   api.deconnexion = function () {
     return pret.then(function (c) { return c.auth.signOut(); })
       .then(function () { drapeau(false); prevenir(); })

@@ -30,7 +30,7 @@
 
     ul.classList.add('connecte');
     ul.innerHTML =
-      '<li><a href="#" class="lien-espace">Mon espace</a></li>' +
+      '<li><a href="espace.html" class="lien-espace">Mon espace</a></li>' +
       '<li><button type="button" class="nav-cta" id="deconnexion">Se déconnecter</button></li>';
 
     document.getElementById('deconnexion').addEventListener('click', function () {
