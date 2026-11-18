@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&display=swap" rel="stylesheet">
+  <script>try { if (window.self !== window.top) document.documentElement.classList.add('integre'); } catch (e) { document.documentElement.classList.add('integre'); }</script>
   <style>
     :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; --jaune: #f5ff4f; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +36,10 @@
     .secours .note { margin-top: 8px; font-size: .85rem; color: #777; }
     .retour { display: inline-block; margin-top: 16px; color: #888; font-size: .92rem; text-decoration: none; }
     .retour:hover { color: var(--noir); text-decoration: underline; }
+    /* Quand la page est affichée dans la fenêtre de paiement de la page des offres */
+    .integre nav, .integre .alerte, .integre h1, .integre .retour { display: none !important; }
+    .integre main { min-height: 0; padding: 18px 14px 30px; background: var(--blanc); }
+    .integre .conteneur { max-width: 520px; }
     @media (max-width: 640px) { .alerte { display: block; } main { padding-top: 150px; } .nav-links li:not(:last-child) { display: none; } .cadre { padding: 10px; } }
   </style>
 </head>
@@ -107,7 +112,7 @@
           location.reload();
         } else {
           try { sessionStorage.removeItem('flexloc_pack_suite'); } catch (e) {}
-          location.href = 'espace.html#paye';
+          (window.top || window).location.href = 'espace.html#paye';
         }
       };
 
