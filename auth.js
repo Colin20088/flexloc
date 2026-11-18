@@ -78,7 +78,7 @@
   };
 
   // Demande au serveur de créer une session de paiement Whop pour la formule choisie (ex. "annuel-promo")
-  api.creerPaiement = function (cle) {
+  api.creerPaiement = function (cle, suite) {
     return pret.then(function (c) {
       return c.auth.getSession().then(function (r) {
         var session = r.data && r.data.session;
@@ -86,7 +86,7 @@
         return fetch(cfg.url + '/functions/v1/creer-paiement', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: cfg.anonKey },
-          body: JSON.stringify({ cle: cle })
+          body: JSON.stringify({ cle: cle, suite: suite || '' })
         }).then(function (rep) {
           return rep.json().catch(function () { return {}; }).then(function (d) {
             if (!rep.ok) return { erreur: d.detail || d.erreur || ('Erreur ' + rep.status) };

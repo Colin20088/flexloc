@@ -164,14 +164,6 @@
     .verifie { display: inline-flex; align-items: center; gap: 4px; color: #888; font-size: .8rem; }
     @media (prefers-reduced-motion: reduce) { .avis-track { animation: none; } }
     .reprise { margin-top: 56px; }
-    /* Fenêtre de paiement */
-    .fenetre-paiement { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; }
-    .fenetre-paiement[hidden] { display: none; }
-    .fenetre-paiement .feuille { position: relative; background: #fff; width: 100%; max-width: 560px; height: 94vh; border-radius: 24px 24px 0 0; overflow: hidden; box-shadow: 0 -8px 40px rgba(0,0,0,.3); }
-    .fenetre-paiement iframe { width: 100%; height: 100%; border: 0; display: block; }
-    .fenetre-paiement .fermer { position: absolute; top: 10px; right: 12px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #f0f0f3; color: #000; font-size: 1.5rem; line-height: 1; cursor: pointer; }
-    body.paiement-ouvert { overflow: hidden; }
-    @media (min-width: 700px) { .fenetre-paiement { align-items: center; } .fenetre-paiement .feuille { height: min(90vh, 860px); border-radius: 24px; } }
     .suite { margin-top: 24px; }
     .btn-continuer {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -439,12 +431,6 @@
       maj();
     })();
   </script>
-  <div class="fenetre-paiement" id="fenetre-paiement" hidden role="dialog" aria-modal="true" aria-label="Paiement">
-    <div class="feuille">
-      <button type="button" class="fermer" id="fermer-paiement" aria-label="Fermer">&times;</button>
-      <iframe id="cadre-paiement" title="Paiement sécurisé"></iframe>
-    </div>
-  </div>
   <script>
     // « Ce que tu débloques » : suit l'abonnement coché (et le Pack voyageur s'il est coché)
     (function () {
@@ -541,21 +527,6 @@
       };
       var PACK = 'https://whop.com/flexloc/flexloc-pack-voyageur/';
 
-      // Fenêtre de paiement : s'ouvre par-dessus la page, juste après le clic sur « Continuer »
-      var fenetre = document.getElementById('fenetre-paiement'), cadrePaiement = document.getElementById('cadre-paiement');
-      function ouvrirPaiement(url) {
-        cadrePaiement.src = url;
-        fenetre.hidden = false;
-        document.body.classList.add('paiement-ouvert');
-      }
-      function fermerPaiement() {
-        fenetre.hidden = true;
-        document.body.classList.remove('paiement-ouvert');
-        cadrePaiement.removeAttribute('src');
-      }
-      document.getElementById('fermer-paiement').addEventListener('click', fermerPaiement);
-      fenetre.addEventListener('click', function (e) { if (e.target === fenetre) fermerPaiement(); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !fenetre.hidden) fermerPaiement(); });
       function choisie() {
         var r = document.querySelector('input[name="formule"]:checked');
         return r ? r.value : null;
@@ -585,7 +556,9 @@
           var cles = [];
           if (formule) cles.push(formule + (promoFinie ? '-base' : '-promo'));
           if (avecPack) cles.push('pack');
-          ouvrirPaiement('paiement.html#' + cles.join('+'));
+          // On va directement sur la page de paiement Whop (la page paiement crée la session puis redirige)
+          btn.disabled = true; btn.firstChild.nodeValue = 'Redirection vers le paiement… ';
+          location.href = 'paiement.html#' + cles.join('+');
         });
       });
     })();

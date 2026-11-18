@@ -4,160 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Flexloc – Paiement</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&display=swap" rel="stylesheet">
-  <script>try { if (window.self !== window.top) document.documentElement.classList.add('integre'); } catch (e) { document.documentElement.classList.add('integre'); }</script>
   <style>
-    :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; --jaune: #f5ff4f; }
+    :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texte); background: var(--blanc); line-height: 1.6; min-height: 100vh; }
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 10; background: rgba(0,0,0,.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--blanc); }
-    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; letter-spacing: .5px; color: var(--blanc); text-decoration: none; }
-    .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
-    .nav-links a { color: #ddd; text-decoration: none; font-size: .95rem; }
-    .nav-cta { background: var(--blanc); color: var(--noir) !important; padding: 8px 18px; border-radius: 999px; font-weight: 600; }
-    .alerte { display: none; background: #e11d2a; color: #fff; text-align: center; font-size: .85rem; font-weight: 700; height: 32px; line-height: 32px; }
-
-    main { min-height: 100vh; padding: 120px 20px 80px; text-align: center; background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%); }
-    .conteneur { max-width: 520px; margin: 0 auto; }
-    h1 { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; font-size: clamp(2rem, 6vw, 2.8rem); margin-bottom: 18px; }
-    .resume { display: inline-flex; flex-direction: column; gap: 2px; padding: 12px 22px; margin-bottom: 8px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
-    .resume strong { font-size: 1.05rem; }
-    .resume span { color: #555; }
-    .etape { color: #888; font-size: .9rem; margin-bottom: 18px; min-height: 1.3em; }
-    .cadre { text-align: left; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px; box-shadow: 0 4px 24px rgba(0,0,0,.06); padding: 18px; min-height: 340px; }
-    .chargement { color: #777; text-align: center; padding: 60px 0; }
-    .securise { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font-size: .85rem; font-weight: 600; color: #16a34a; }
-    .secours { margin-top: 18px; padding: 14px 16px; border: 1px dashed #cfcfd6; border-radius: 16px; color: #555; font-size: .95rem; }
-    .secours.fort { border-color: #000; background: #fff; }
-    .secours .btn { display: inline-block; margin-top: 8px; background: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 999px; font-weight: 700; }
-    .secours .note { margin-top: 8px; font-size: .85rem; color: #777; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texte); background: var(--blanc); min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 24px; }
+    .boite { max-width: 380px; }
+    .rond { width: 34px; height: 34px; margin: 0 auto 18px; border: 4px solid #e3e3e8; border-top-color: var(--noir); border-radius: 50%; animation: tourne .8s linear infinite; }
+    @keyframes tourne { to { transform: rotate(360deg); } }
+    h1 { font-size: 1.25rem; margin-bottom: 6px; }
+    p { color: #666; }
+    .secours { margin-top: 22px; }
+    .secours[hidden] { display: none; }
+    .btn { display: inline-block; margin-top: 8px; background: var(--noir); color: var(--blanc); text-decoration: none; padding: 13px 26px; border-radius: 999px; font-weight: 700; }
     .retour { display: inline-block; margin-top: 16px; color: #888; font-size: .92rem; text-decoration: none; }
-    .retour:hover { color: var(--noir); text-decoration: underline; }
-    /* Quand la page est affichée dans la fenêtre de paiement de la page des offres */
-    .integre nav, .integre .alerte, .integre h1, .integre .retour { display: none !important; }
-    .integre main { min-height: 0; padding: 18px 14px 30px; background: var(--blanc); }
-    .integre .conteneur { max-width: 520px; }
-    @media (max-width: 640px) { .alerte { display: block; } main { padding-top: 150px; } .nav-links li:not(:last-child) { display: none; } .cadre { padding: 10px; } }
   </style>
 </head>
 <body>
-  <nav>
-    <div class="alerte">Plus que <span data-places>7</span> – capacité limitée</div>
-    <div class="nav-inner">
-      <a href="index.html" class="logo">
-        <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
-          <rect width="40" height="40" rx="10" fill="#fffc00"/>
-          <ellipse cx="20" cy="29.5" rx="9.5" ry="3.8" fill="none" stroke="#000" stroke-width="2.3"/>
-          <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
-          <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
-        </svg>
-        <span>Flexloc</span>
-      </a>
-      <ul class="nav-links"><li><a href="connexion.html" class="nav-cta">Connexion</a></li></ul>
+  <div class="boite">
+    <div class="rond" aria-hidden="true"></div>
+    <h1 id="titre">Redirection vers le paiement sécurisé…</h1>
+    <p id="detail">Encaissé par Whop.</p>
+    <div class="secours" id="secours" hidden>
+      <p>Rien ne se passe ?</p>
+      <a class="btn" id="lien" href="#">Ouvrir le paiement</a><br>
+      <a class="retour" href="offre.html">← Retour aux formules</a>
     </div>
-  </nav>
-
-  <main>
-    <div class="conteneur">
-      <h1>Finalise ton paiement</h1>
-      <div class="resume" id="resume"><strong id="nom">…</strong><span id="prix"></span></div>
-      <p class="etape" id="etape"></p>
-      <div class="cadre" id="cadre"><p class="chargement" id="chargement">Chargement du paiement sécurisé…</p></div>
-      <div class="secours" id="secours" hidden>
-        <p>Le formulaire ne s'affiche pas ?</p>
-        <a class="btn" id="lien-whop" href="#">Payer sur la page Whop</a>
-        <p class="note" id="note-email"></p>
-      </div>
-      <p class="securise">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
-        Paiement sécurisé, encaissé par Whop
-      </p>
-      <a class="retour" href="offre.html">← Changer de formule</a>
-    </div>
-  </main>
+  </div>
 
   <script>
     (function () {
-      // Formules → offres Whop (identifiants des offres, lus sur les pages Whop)
+      // Page de passage : crée la session de paiement puis envoie directement sur la page de paiement Whop.
+      // Appelée avec par exemple  paiement.html#annuel-promo  ou  paiement.html#pack
       var PLANS = {
-        'mensuel-promo':     { plan: 'plan_l8Ho8AsUgnNqH', nom: 'Abonnement mensuel',          prix: '11,90 € par mois' },
-        'mensuel-base':      { plan: 'plan_yekjjKeON7EG1', nom: 'Abonnement mensuel',          prix: '15,90 € par mois' },
-        'trimestriel-promo': { plan: 'plan_VX46TUeYgLP7Y', nom: 'Abonnement tous les 3 mois',  prix: '29,90 € tous les 3 mois' },
-        'trimestriel-base':  { plan: 'plan_Jv5U42Qet3Ukp', nom: 'Abonnement tous les 3 mois',  prix: '39,90 € tous les 3 mois' },
-        'annuel-promo':      { plan: 'plan_bDttClAnGqFe4', nom: 'Abonnement annuel',           prix: '69,90 € par an' },
-        'annuel-base':       { plan: 'plan_fknTbKiPlD7vs', nom: 'Abonnement annuel',           prix: '129,90 € par an' },
-        'pack':              { plan: 'plan_itUEtYdVwjh27', nom: 'Pack voyageur',               prix: '15,90 € (paiement unique)' }
+        'mensuel-promo': 'plan_l8Ho8AsUgnNqH',   'mensuel-base': 'plan_yekjjKeON7EG1',
+        'trimestriel-promo': 'plan_VX46TUeYgLP7Y', 'trimestriel-base': 'plan_Jv5U42Qet3Ukp',
+        'annuel-promo': 'plan_bDttClAnGqFe4',    'annuel-base': 'plan_fknTbKiPlD7vs',
+        'pack': 'plan_itUEtYdVwjh27'
       };
-
-      // La page est appelée avec par exemple  paiement.html#annuel-promo+pack  (le pack se règle ensuite)
       var items = location.hash.slice(1).split('+').filter(function (k) { return PLANS[k]; });
       if (!items.length) { location.replace('offre.html'); return; }
-      var total = items.length;
-      var courant = PLANS[items[0]];
 
-      document.getElementById('nom').textContent = courant.nom;
-      document.getElementById('prix').textContent = courant.prix;
-      if (total > 1) document.getElementById('etape').textContent = 'Étape 1 sur ' + total + ' : ensuite, le Pack voyageur.';
-      else if (items[0] === 'pack' && sessionStorage.getItem('flexloc_pack_suite') === '1') document.getElementById('etape').textContent = 'Dernière étape : le Pack voyageur.';
+      var cle = items[0], suite = items[1] || '';
+      var secoursUrl = 'https://whop.com/checkout/' + PLANS[cle] + '/';
+      document.getElementById('lien').href = secoursUrl;
+      setTimeout(function () { document.getElementById('secours').hidden = false; }, 6000);
 
-      // Appelé par Whop quand le paiement est réussi
-      window.flexlocPaiementOk = function () {
-        items.shift();
-        if (items.length) {
-          try { sessionStorage.setItem('flexloc_pack_suite', '1'); } catch (e) {}
-          location.hash = '#' + items.join('+');
-          location.reload();
-        } else {
-          try { sessionStorage.removeItem('flexloc_pack_suite'); } catch (e) {}
-          (window.top || window).location.href = 'espace.html#paye';
-        }
-      };
+      function aller(url) { location.replace(url); }
 
-      // Lien de secours vers la page de paiement hébergée par Whop
-      var secours = document.getElementById('secours');
-      var formulaireOk = false;
-      window.flexlocEtat = function () { formulaireOk = true; secours.classList.remove('fort'); };
-
-      function afficher(email, session, lien) {
-        document.getElementById('lien-whop').href = lien || ('https://whop.com/checkout/' + courant.plan + '/');
-        document.getElementById('note-email').textContent = 'Sur la page Whop, utilise la même adresse e-mail que ton compte : ' + email;
-        secours.hidden = false;
-        // Si le formulaire n'a pas donné signe de vie au bout de 8 secondes, on met le lien de secours en avant
-        setTimeout(function () { if (!formulaireOk) secours.classList.add('fort'); }, 8000);
-
-        var cadre = document.getElementById('cadre');
-        cadre.innerHTML = '';
-        var d = document.createElement('div');
-        d.id = 'whop-embedded-checkout';
-        d.setAttribute('data-whop-checkout-plan-id', courant.plan);
-        if (session) d.setAttribute('data-whop-checkout-session', session);   // session créée côté serveur (ch_...)
-        d.setAttribute('data-whop-checkout-prefill-email', email);    // même e-mail que le compte Flexloc
-        d.setAttribute('data-whop-checkout-disable-email', 'true');   // et non modifiable
-        d.setAttribute('data-whop-checkout-theme', 'light');
-        d.setAttribute('data-whop-checkout-on-complete', 'flexlocPaiementOk');
-        d.setAttribute('data-whop-checkout-on-state-change', 'flexlocEtat');
-        cadre.appendChild(d);
-        var s = document.createElement('script');
-        s.async = true; s.defer = true;
-        s.src = 'https://js.whop.com/static/checkout/loader.js';
-        document.head.appendChild(s);
-      }
       function demarrer() {
         var a = window.flexlocAuth;
-        if (!a || !a.configure) { document.getElementById('chargement').textContent = "La connexion n'est pas configurée."; return; }
+        if (!a || !a.configure) { aller(secoursUrl); return; }
         a.email().then(function (email) {
-          if (!email) { location.href = 'connexion.html'; return; }   // il faut un compte pour rattacher l'achat
-          // Le serveur crée la session de paiement Whop (la clé Whop reste secrète)
-          a.creerPaiement(items[0]).then(function (r) {
-            if (r && r.id) afficher(email, r.id, r.purchase_url);
-            else {
-              document.getElementById('chargement').textContent = '';
-              console.warn('Session de paiement non créée :', r && r.erreur);
-              afficher(email, null, null);   // repli : formulaire direct de l'offre + lien Whop
-            }
+          if (!email) { location.replace('connexion.html'); return; }
+          a.creerPaiement(cle, suite).then(function (r) {
+            if (r && r.purchase_url) aller(r.purchase_url);
+            else { console.warn('Session de paiement non créée :', r && r.erreur); aller(secoursUrl); }
           });
         });
       }
@@ -166,7 +67,5 @@
   </script>
   <script src="config.js"></script>
   <script src="auth.js"></script>
-  <script src="places.js"></script>
-  <script src="nav.js"></script>
 </body>
 </html>
