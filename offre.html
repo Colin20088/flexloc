@@ -171,6 +171,8 @@
       padding: 17px 40px; border-radius: 999px; font-weight: 700; font-size: 1.05rem; transition: transform .15s;
     }
     .btn-continuer:hover { transform: translateY(-2px); }
+    .choix-erreur { margin-top: 12px; color: #c81e1e; font-size: .92rem; font-weight: 600; }
+    .choix-erreur:empty { display: none; }
     .securise { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: .82rem; font-weight: 600; color: #16a34a; }
     .securise svg { flex-shrink: 0; }
     .paiements {
@@ -266,8 +268,8 @@
         </section>
 
         <section class="formule">
-          <p class="type"><label class="coche"><input type="radio" name="formule" value="annuel"><span class="carre" aria-hidden="true"></span><span>Abonnement annuel</span></label> <span class="promo">-42 %</span></p>
-          <p class="ancien"><s>119,90 €</s></p>
+          <p class="type"><label class="coche"><input type="radio" name="formule" value="annuel"><span class="carre" aria-hidden="true"></span><span>Abonnement annuel</span></label> <span class="promo">-46 %</span></p>
+          <p class="ancien"><s>129,90 €</s></p>
           <p class="prix">69,90 €<small>par an</small></p>
           <ul>
             <li>Téléportation partout dans le monde, en direct</li>
@@ -477,6 +479,49 @@
       var s = document.createElement('span'); s.textContent = affiche;
       h1.appendChild(s);
       h1.appendChild(document.createTextNode(' en 30 secondes'));
+    })();
+  </script>
+  <script>
+    // Bouton « Continuer » : envoie vers le paiement Whop de la formule cochée
+    (function () {
+      var WHOP = {
+        mensuel:     { promo: 'https://whop.com/flexloc/flexloc-standard/', base: 'https://whop.com/flexloc/flexloc-standard-3f/' },
+        trimestriel: { promo: 'https://whop.com/flexloc/flexloc-premium/',  base: 'https://whop.com/flexloc/flexloc-premium-9e/' },
+        annuel:      { promo: 'https://whop.com/flexloc/flexloc-vip/',      base: 'https://whop.com/flexloc/flexloc-vip-9f/' }
+      };
+      var PACK = 'https://whop.com/flexloc/flexloc-pack-voyageur/';
+
+      function choisie() {
+        var r = document.querySelector('input[name="formule"]:checked');
+        return r ? r.value : null;
+      }
+      function erreur(zone, texte) {
+        var p = zone.querySelector('.choix-erreur');
+        if (!p) { p = document.createElement('p'); p.className = 'choix-erreur'; p.setAttribute('role', 'alert'); zone.querySelector('.btn-continuer').insertAdjacentElement('afterend', p); }
+        p.textContent = texte;
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('.btn-continuer'), function (btn) {
+        btn.addEventListener('click', function () {
+          var zone = btn.closest('.suite');
+          var ancien = zone.querySelector('.choix-erreur'); if (ancien) ancien.textContent = '';
+
+          var formule = choisie();
+          var pack = document.querySelector('input[name="pack"]');
+          var avecPack = !!(pack && pack.checked);
+          if (!formule && !avecPack) { erreur(zone, 'Coche une formule (ou le Pack voyageur) pour continuer.'); return; }
+
+          // Il faut un compte pour rattacher l'achat à la bonne personne
+          var connecte = false; try { connecte = localStorage.getItem('flexloc_connecte') === '1'; } catch (e) {}
+          if (!connecte) { location.href = 'connexion.html'; return; }
+
+          var promoFinie = document.body.classList.contains('promo-finie');
+          var lien = formule ? WHOP[formule][promoFinie ? 'base' : 'promo'] : PACK;
+          // Abonnement + pack : le pack se règle dans un second onglet
+          if (formule && avecPack) window.open(PACK, '_blank', 'noopener');
+          location.href = lien;
+        });
+      });
     })();
   </script>
   <script src="config.js"></script>
