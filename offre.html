@@ -366,30 +366,66 @@
   </main>
 
   <script>
-    // Compte à rebours de 10 minutes (la fin est mémorisée : recharger la page ne le remet pas à zéro)
+    // Compte à rebours de 10 minutes (la fin est mémorisée : recharger la page ne le remet pas à zéro).
+    // Un seul compte (reconnu par l'empreinte SHA-256 de son e-mail, pas par l'e-mail en clair) a un compte à rebours infini :
+    // pour lui, la promo ne se termine jamais.
     (function () {
       var DUREE = 10 * 60 * 1000, CLE = 'flexloc_fin_offre';
-      var fin = null;
+      var EMPREINTE_INFINI = '109419d9cb208c9a2719d71f6fa6868487a13e8860e797ae3fdf12bbb0f78904';
+      var fin = null, infini = false, verifie = false;
       try { fin = parseInt(localStorage.getItem(CLE), 10); } catch (e) {}
-      if (!fin || isNaN(fin)) {
+      if (!fin || isNaN(fin)) { fin = Date.now() + DUREE; try { localStorage.setItem(CLE, String(fin)); } catch (e) {} }
+      var el = document.getElementById('minuteur'), bloc = el.parentNode;
+
+      function relancer() {
         fin = Date.now() + DUREE;
         try { localStorage.setItem(CLE, String(fin)); } catch (e) {}
       }
-      var el = document.getElementById('minuteur'), bloc = el.parentNode;
+      function appliquerFin() {
+        bloc.classList.add('compte-fin'); bloc.firstElementChild.textContent = 'Black Friday terminé';
+        document.body.classList.add('promo-finie');
+        Array.prototype.forEach.call(document.querySelectorAll('.formule'), function (carte) {
+          var ancien = carte.querySelector('.ancien s'), prix = carte.querySelector('.prix');
+          if (ancien && prix && prix.firstChild) {
+            if (prix.dataset.promo === undefined) prix.dataset.promo = prix.firstChild.nodeValue;
+            prix.firstChild.nodeValue = ancien.textContent;
+          }
+        });
+      }
+      function annulerFin() {
+        bloc.classList.remove('compte-fin'); bloc.firstElementChild.textContent = 'Black Friday : fin dans';
+        document.body.classList.remove('promo-finie');
+        Array.prototype.forEach.call(document.querySelectorAll('.formule .prix'), function (prix) {
+          if (prix.dataset.promo !== undefined && prix.firstChild) prix.firstChild.nodeValue = prix.dataset.promo;
+        });
+      }
+
+      function empreinte(texte) {
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(texte)).then(function (buf) {
+          return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+        });
+      }
+      // Une fois la page chargée, on regarde quel compte est connecté
+      function verifier() {
+        if (verifie) return; verifie = true;
+        var a = window.flexlocAuth;
+        if (!a || !a.configure || !a.email) return;
+        a.email().then(function (mail) {
+          if (!mail) return null;
+          return empreinte(mail.trim().toLowerCase());
+        }).then(function (h) {
+          if (h && h === EMPREINTE_INFINI) { infini = true; relancer(); annulerFin(); }
+        }).catch(function () {});
+      }
+      if (document.readyState === 'complete') verifier(); else window.addEventListener('load', verifier);
+      window.addEventListener('flexloc-auth', function () { infini = false; verifie = false; verifier(); });
+
       function maj() {
         var reste = Math.max(0, fin - Date.now());
+        if (reste <= 0 && infini) { relancer(); reste = DUREE; }
         var s = Math.ceil(reste / 1000), m = Math.floor(s / 60);
         el.textContent = (m < 10 ? '0' : '') + m + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
-        if (reste <= 0) {
-          bloc.classList.add('compte-fin'); bloc.firstElementChild.textContent = 'Black Friday terminé';
-          // Fin de la promo : les prix reviennent aux prix de base, sans réduction
-          document.body.classList.add('promo-finie');
-          Array.prototype.forEach.call(document.querySelectorAll('.formule'), function (carte) {
-            var ancien = carte.querySelector('.ancien s'), prix = carte.querySelector('.prix');
-            if (ancien && prix && prix.firstChild) prix.firstChild.nodeValue = ancien.textContent;
-          });
-          return;
-        }
+        if (reste <= 0) { appliquerFin(); setTimeout(maj, 500); return; }
         setTimeout(maj, 250);
       }
       maj();

@@ -77,6 +77,13 @@
     }).catch(function (e) { return { erreur: traduire(e) }; });
   };
 
+  // E-mail du compte connecté (null si personne n'est connecté)
+  api.email = function () {
+    return pret.then(function (c) { return c.auth.getSession(); })
+      .then(function (r) { return r.data && r.data.session ? r.data.session.user.email : null; })
+      .catch(function () { return null; });
+  };
+
   // Infos du compte connecté + ses abonnements (la base ne renvoie que les lignes de cet e-mail)
   api.espace = function () {
     return pret.then(function (c) {
