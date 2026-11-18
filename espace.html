@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e11d2a" media="(max-width: 640px)">
   <title>Flexloc – Mon espace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,11 +43,17 @@
     .actions { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
     .btn { display: inline-block; background: var(--noir); color: var(--blanc); text-decoration: none; padding: 13px 26px; border-radius: 999px; font-weight: 700; font-size: .98rem; border: 0; cursor: pointer; font-family: inherit; }
     .btn.clair { background: var(--blanc); color: var(--noir); border: 1px solid var(--noir); }
-    .vide, .chargement { color: #666; margin: 30px 0; }
+    .carte.app { border-color: #000; border-width: 2px; }`n    .vide, .chargement { color: #666; margin: 30px 0; }
     .erreur { color: #c81e1e; margin: 20px 0; font-weight: 600; }
     [hidden] { display: none !important; }
 
     @media (max-width: 640px) { .alerte { display: block; } main { padding-top: 150px; } .nav-links li:not(:last-child) { display: none; } }
+    /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
+    @media (max-width: 640px) {
+      html { background-color: #e11d2a; }
+      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
+    }
   </style>
 </head>
 <body>
@@ -76,6 +82,12 @@
 
       <p class="chargement" id="chargement">Chargement de ton compte…</p>
       <p class="erreur" id="erreur" hidden></p>
+      <div class="carte app" id="app-bloc" hidden>
+        <span class="badge actif">Accès débloqué</span>
+        <h2>Ton app Flexloc</h2>
+        <p>Connecte-toi avec le même e-mail et le même mot de passe que sur le site, puis choisis ta destination.</p>
+        <div class="actions"><a class="btn" id="app-lien" href="#" target="_blank" rel="noopener">Ouvrir l'app</a></div>
+      </div>
       <div id="liste"></div>
       <div class="vide" id="vide" hidden>
         <p>Tu n'as pas encore d'abonnement.</p>
@@ -139,6 +151,12 @@
           liste.innerHTML = '';
           (r.abonnements || []).forEach(function (a) { liste.appendChild(carte(a)); });
           var aucun = (r.abonnements || []).length === 0;
+          // Un abonnement actif donne accès à l'app
+          var cfg = window.FLEXLOC_SUPABASE || {};
+          var actif = (r.abonnements || []).some(function (a) {
+            return a.offre !== 'pack' && (a.status === 'active' || a.status === 'trialing' || (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
+          });
+          if (actif && cfg.appUrl) { el('app-lien').href = cfg.appUrl; el('app-bloc').hidden = false; }
           // Juste après un paiement, Whop met quelques secondes à nous prévenir : on réessaie
           if (aucun && apresPaiement && essais < 15) {
             essais++;

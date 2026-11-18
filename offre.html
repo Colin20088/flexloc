@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#e11d2a" media="(max-width: 640px)">
   <title>Flexloc – Choisis ta formule</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -203,6 +203,12 @@
       .alerte { display: block; }
       main { padding-top: 140px; }
       .nav-links li:not(:last-child) { display: none; }
+    }
+    /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
+    @media (max-width: 640px) {
+      html { background-color: #e11d2a; }
+      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
   </style>
 </head>
