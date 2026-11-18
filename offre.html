@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flexloc – Choisis ta formule</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; --jaune: #f5ff4f; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--texte); background: var(--blanc); line-height: 1.6; min-height: 100vh;
+    }
+
+    /* Barre de navigation noire */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      background: rgba(0, 0, 0, .88);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      color: var(--blanc);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 20px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; letter-spacing: .5px; color: var(--blanc); text-decoration: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+    .nav-links a { color: #ddd; text-decoration: none; font-size: .95rem; }
+    .nav-cta { background: var(--blanc); color: var(--noir) !important; padding: 8px 18px; border-radius: 999px; font-weight: 600; }
+    .alerte { display: none; background: #e11d2a; color: #fff; text-align: center; font-size: .85rem; font-weight: 700; height: 32px; line-height: 32px; }
+
+    main {
+      min-height: 100vh; padding: 110px 20px 80px; text-align: center;
+      background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%);
+    }
+    .conteneur { max-width: 980px; margin: 0 auto; }
+
+    .compte {
+      display: flex; width: fit-content; align-items: center; justify-content: center; gap: 12px;
+      margin: 0 auto 14px; padding: 9px 18px;
+      background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 999px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+      font-size: .9rem; font-weight: 600; color: #444;
+    }
+    .compte b {
+      color: var(--noir); font-size: 1.15rem; font-variant-numeric: tabular-nums; letter-spacing: .03em;
+    }
+    .compte-fin b { color: #999; }
+    .promo-finie .formule .ancien, .promo-finie .formule .promo { display: none; }
+    .acces {
+      display: flex; width: fit-content; align-items: center; gap: 8px;
+      padding: 7px 14px; margin: 0 auto 18px;
+      background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 999px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+      font-size: .85rem; font-weight: 600; color: #444;
+    }
+    .acces svg { flex-shrink: 0; }
+
+    h1, h2 {
+      font-family: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-weight: 800; letter-spacing: -.03em; line-height: 1.1;
+    }
+    h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); max-width: 720px; margin: 0 auto 16px; }
+    h1 span { background: var(--jaune); padding: 0 .15em; border-radius: 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+    .sous-titre { max-width: 560px; margin: 0 auto 40px; color: #666; font-size: 1.05rem; }
+    h2 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); margin-bottom: 24px; }
+
+    .formules { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; text-align: left; }
+    .formule {
+      padding: 24px 22px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    }
+    .formule.populaire { position: relative; border: 2px solid var(--noir); padding: 23px 21px; }
+    .badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+      background: var(--noir); color: var(--blanc); font-size: .8rem; font-weight: 700;
+      padding: 3px 14px; border-radius: 999px;
+    }
+    .formule .type { font-size: .85rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .04em; }
+    .formule .type { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 8px; font-size: .78rem; letter-spacing: .03em; line-height: 1.3; }
+    .formule .type .promo { flex-shrink: 0; }
+    .promo {
+      background: #e11d2a; color: var(--blanc); font-size: .78rem; font-weight: 800; letter-spacing: 0;
+      padding: 2px 9px; border-radius: 999px; text-transform: none; white-space: nowrap;
+    }
+    .formule .ancien { margin-top: 8px; margin-bottom: 4px; font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
+    .formule .ancien s { background: var(--jaune); color: #1a1a1f; padding: 1px 8px; border-radius: 6px; }
+    .formule .prix { margin: 0 0 18px; font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -.03em; line-height: 1.1; }
+    .formule .prix small { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-weight: 600; font-size: .95rem; letter-spacing: 0; color: #666; margin-left: 4px; }
+    .formule ul { list-style: none; display: grid; gap: 10px; }
+    .formule li { position: relative; padding-left: 30px; font-size: .98rem; line-height: 1.4; }
+    .formule li::before {
+      content: "✓"; position: absolute; left: 0; top: 0; width: 21px; height: 21px; border-radius: 50%;
+      background: var(--noir); color: var(--blanc); font-size: .72rem; font-weight: 700;
+      display: grid; place-items: center;
+    }
+
+    .pack {
+      margin-top: 16px; text-align: left; overflow: hidden;
+      background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    }
+    .pack-corps { padding: 24px 22px 20px; }
+    .pack-titre { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+    .coche { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; position: relative; }
+    .coche input { position: absolute; opacity: 0; width: 26px; height: 26px; margin: 0; cursor: pointer; }
+    .carre {
+      flex-shrink: 0; width: 26px; height: 26px; border: 2px solid var(--texte); border-radius: 7px;
+      background: var(--blanc); display: grid; place-items: center; transition: background .15s;
+    }
+    .coche input:checked + .carre { background: var(--noir); border-color: var(--noir); }
+    .coche input:checked + .carre::after {
+      content: ""; width: 7px; height: 12px; margin-top: -2px;
+      border: solid var(--blanc); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
+    }
+    .coche input:focus-visible + .carre { outline: 3px solid var(--jaune); outline-offset: 2px; }
+    .formule .carre { width: 22px; height: 22px; border-radius: 6px; }
+    .formule .coche { gap: 10px; }
+    .formule .coche input { width: 22px; height: 22px; }
+    .formule .coche input:checked + .carre::after { width: 6px; height: 10px; margin-top: -2px; }
+    .formule:has(input:checked) { border-color: var(--noir); box-shadow: 0 0 0 1px var(--noir), 0 4px 24px rgba(0,0,0,.06); }    .pack h3 { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; letter-spacing: -.02em; font-size: 1.3rem; line-height: 1.2; }
+    .reco { background: var(--jaune); color: #1a1a1f; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+    .pack .prix { margin: 6px 0 14px; font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -.03em; line-height: 1.1; }
+    .pack-texte { color: #555; font-size: .98rem; line-height: 1.5; }
+    .debloque { margin-top: 56px; }
+    .debloque-sous { max-width: 520px; margin: -8px auto 18px; color: #666; font-size: 1rem; }
+    .debloque-liste {
+      list-style: none; display: grid; gap: 12px; text-align: left; max-width: 520px; margin: 0 auto;
+      padding: 22px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    }
+    .debloque-liste[hidden] { display: none; }
+    .debloque-liste li { position: relative; padding-left: 32px; font-size: 1rem; line-height: 1.4; }
+    .debloque-liste li::before {
+      content: "✓"; position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--noir); color: var(--blanc); font-size: .75rem; font-weight: 700;
+      display: grid; place-items: center;
+    }
+    .faq { margin-top: 56px; }
+    .faq-liste { display: grid; gap: 12px; max-width: 640px; margin: 0 auto; text-align: left; }
+    .qr { padding: 20px 22px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+    .qr h3 { font-size: 1.1rem; line-height: 1.3; margin-bottom: 8px; }
+    .qr p { color: #555; font-size: .98rem; line-height: 1.55; }
+    /* Avis qui défilent (pleine largeur de l'écran) */
+    main { overflow-x: clip; }
+    .avis { margin: 64px calc(50% - 50vw) 0; width: 100vw; overflow: hidden; }
+    .avis-titre { padding: 0 20px 20px; }
+    .avis-titre h2 { margin-bottom: 6px; }
+    .etoiles { color: #f5b301; letter-spacing: 3px; font-size: 1.4rem; line-height: 1.3; }
+    .avis-track { display: flex; gap: 20px; width: max-content; padding: 10px 0; animation: defile 45s linear infinite; }
+    .avis:hover .avis-track { animation-play-state: paused; }
+    @keyframes defile { to { transform: translateX(-50%); } }
+    .avis-card {
+      width: 300px; flex-shrink: 0; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 16px;
+      padding: 22px; box-shadow: 0 2px 12px rgba(0,0,0,.08); text-align: left;
+    }
+    .avis-card .etoiles { font-size: 1.15rem; margin-bottom: 8px; }
+    .avis-card p { color: #444; font-size: .95rem; margin-bottom: 12px; }
+    .avis-card strong { font-size: .9rem; }
+    .auteur { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .verifie { display: inline-flex; align-items: center; gap: 4px; color: #888; font-size: .8rem; }
+    @media (prefers-reduced-motion: reduce) { .avis-track { animation: none; } }
+    .reprise { margin-top: 56px; }
+    .suite { margin-top: 24px; }
+    .btn-continuer {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--noir); color: var(--blanc); border: 0; cursor: pointer; font: inherit;
+      padding: 17px 40px; border-radius: 999px; font-weight: 700; font-size: 1.05rem; transition: transform .15s;
+    }
+    .btn-continuer:hover { transform: translateY(-2px); }
+    .securise { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: .82rem; font-weight: 600; color: #16a34a; }
+    .securise svg { flex-shrink: 0; }
+    .paiements {
+      list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      max-width: 460px; margin: 18px auto 0;
+    }
+    .paiements li {
+      display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
+      padding: 12px 10px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.06); font-size: .82rem; font-weight: 600; color: #333; line-height: 1.2;
+    }
+    .paiements svg { color: #9a9aa5; }
+    .paiements img { filter: grayscale(1) contrast(.85); opacity: .65; }
+    .paiements li > svg, .paiements li > img { flex-shrink: 0; }
+    @media (max-width: 520px) {
+      .paiements { gap: 6px; }
+      .paiements li { gap: 5px; padding: 9px 5px; font-size: .68rem; border-radius: 12px; }
+      .paiements li > svg, .paiements .logo-whop { width: 20px; height: 20px; }
+      .paiements .logo-whop { border-radius: 5px; }
+      .paiements .logo-applepay { width: 28px; height: 20px; }
+    }
+    .logo-whop { border-radius: 8px; object-fit: cover; }
+    .logo-applepay { object-fit: contain; }
+    .pack-bas { background: var(--noir); color: var(--blanc); padding: 16px 22px; font-weight: 700; font-size: .98rem; line-height: 1.45; }
+
+    @media (max-width: 640px) {
+      .alerte { display: block; }
+      main { padding-top: 140px; }
+      .nav-links li:not(:last-child) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="alerte">Plus que <span data-places>7</span> – capacité limitée</div>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
+          <rect width="40" height="40" rx="10" fill="#fffc00"/>
+          <ellipse cx="20" cy="29.5" rx="9.5" ry="3.8" fill="none" stroke="#000" stroke-width="2.3"/>
+          <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
+          <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
+        </svg>
+        <span>Flexloc</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <div class="conteneur">
+      <div class="compte" role="timer" aria-live="off">
+        <span>Black Friday : fin dans</span>
+        <b id="minuteur">10:00</b>
+      </div>
+
+      <div class="acces">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        Accès immédiat – résiliable en 1 clic
+      </div>
+
+      <h1 id="titre">Mets-toi à <span>Sydney</span> en 30 secondes</h1>
+      <p class="sous-titre">Pas un screen, pas un montage : ta vraie position système, en direct. Ton accès se débloque à la seconde.</p>
+
+      <h2>Choisis ta formule</h2>
+
+      <div class="formules">
+        <section class="formule">
+          <p class="type"><label class="coche"><input type="radio" name="formule" value="mensuel"><span class="carre" aria-hidden="true"></span><span>Abonnement mensuel</span></label> <span class="promo">-25 %</span></p>
+          <p class="ancien"><s>15,90 €</s></p>
+          <p class="prix">11,90 €<small>par mois</small></p>
+          <ul>
+            <li>Téléportation partout dans le monde, en direct</li>
+            <li>Ta vraie position système</li>
+            <li>Installation guidée pas à pas</li>
+          </ul>
+        </section>
+
+        <section class="formule populaire">
+          <span class="badge">Le plus populaire</span>
+          <p class="type"><label class="coche"><input type="radio" name="formule" value="trimestriel"><span class="carre" aria-hidden="true"></span><span>Abonnement tous les 3 mois</span></label> <span class="promo">-25 %</span></p>
+          <p class="ancien"><s>39,90 €</s></p>
+          <p class="prix">29,90 €<small>tous les 3 mois</small></p>
+          <ul>
+            <li>Téléportation partout dans le monde, en direct</li>
+            <li>Ta vraie position système</li>
+            <li>Installation guidée pas à pas</li>
+            <li>Logiciel PC et Mac inclus</li>
+          </ul>
+        </section>
+
+        <section class="formule">
+          <p class="type"><label class="coche"><input type="radio" name="formule" value="annuel"><span class="carre" aria-hidden="true"></span><span>Abonnement annuel</span></label> <span class="promo">-42 %</span></p>
+          <p class="ancien"><s>119,90 €</s></p>
+          <p class="prix">69,90 €<small>par an</small></p>
+          <ul>
+            <li>Téléportation partout dans le monde, en direct</li>
+            <li>Ta vraie position système</li>
+            <li>Installation guidée pas à pas</li>
+            <li>Logiciel PC et Mac inclus</li>
+            <li>Téléportation illimitée</li>
+            <li>Support prioritaire 24/7</li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="pack">
+        <div class="pack-corps">
+          <div class="pack-titre">
+            <label class="coche">
+              <input type="checkbox" name="pack" value="voyageur">
+              <span class="carre" aria-hidden="true"></span>
+              <h3>Pack voyageur</h3>
+            </label>
+            <span class="reco">Recommandé</span>
+          </div>
+          <p class="prix">15,90 €</p>
+          <p class="pack-texte">Pour que personne ne se doute de rien : tes trajets ont l'air 100 % vrais (avion près d'un aéroport, bateau en mer, voiture, train près d'une gare…). Plus la carte des 50 meilleurs spots – hôtels de luxe, aéroport, restos, monuments.</p>
+        </div>
+        <p class="pack-bas">La plupart l'ajoute : c'est la différence entre une position posée et un vrai déplacement</p>
+      </section>
+
+      <div class="suite">
+        <button type="button" class="btn-continuer">
+          Continuer
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="securise">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+          Paiement sécurisé, encaissé par Whop
+        </p>
+        <ul class="paiements" aria-label="Moyens de paiement acceptés">
+          <li><img src="img/whop.png" width="34" height="34" alt="" class="logo-whop"><span>Whop</span></li>
+          <li>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 15h4"/></svg>
+            <span>Carte bancaire</span>
+          </li>
+          <li><img src="img/applepay.svg" width="40" height="34" alt="" class="logo-applepay"><span>Apple Pay</span></li>
+        </ul>
+      </div>
+
+      <section class="debloque" aria-live="polite">
+        <h2 id="debloque-titre">Ce que tu débloques</h2>
+        <p class="debloque-sous" id="debloque-sous">Choisis une formule pour voir ce qu'elle débloque.</p>
+        <ul class="debloque-liste" id="debloque-liste" hidden></ul>
+      </section>
+
+      <section class="faq">
+        <h2>Les questions qu'on nous pose souvent</h2>
+        <div class="faq-liste">
+          <article class="qr">
+            <h3>Ça marche sur mon téléphone ?</h3>
+            <p>Oui, ça marche sur iPhone et Android, tous modèles. Une fois l'app installée sur iPhone ou sur Android, ta vraie position système changera et te placera là où tu auras choisi.</p>
+          </article>
+          <article class="qr">
+            <h3>On va me griller ?</h3>
+            <p>Non. C'est pas un screenshot ni un montage : c'est ta vraie position système, en direct – exactement ce que ton téléphone envoie à la map. Tes potes verront ta loc au bon endroit.</p>
+          </article>
+          <article class="qr">
+            <h3>Et si je veux arrêter ?</h3>
+            <p>Résiliation en 1 clic depuis ton espace, quand tu veux. Pas de relance, pas d'appel, pas de formulaire.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="avis" aria-label="Ce qu'ils en disent">
+        <div class="avis-titre">
+          <h2>Ce qu'ils en disent</h2>
+        </div>
+        <div class="avis-track" id="avis"></div>
+      </section>
+
+      <section class="reprise">
+        <h2>Reprends là où tu en étais</h2>
+        <div class="formules" id="reprise"></div>
+        <div class="suite">
+          <button type="button" class="btn-continuer">
+            Continuer
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="securise">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+            Paiement sécurisé, encaissé par Whop
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Compte à rebours de 10 minutes (la fin est mémorisée : recharger la page ne le remet pas à zéro)
+    (function () {
+      var DUREE = 10 * 60 * 1000, CLE = 'flexloc_fin_offre';
+      var fin = null;
+      try { fin = parseInt(localStorage.getItem(CLE), 10); } catch (e) {}
+      if (!fin || isNaN(fin)) {
+        fin = Date.now() + DUREE;
+        try { localStorage.setItem(CLE, String(fin)); } catch (e) {}
+      }
+      var el = document.getElementById('minuteur'), bloc = el.parentNode;
+      function maj() {
+        var reste = Math.max(0, fin - Date.now());
+        var s = Math.ceil(reste / 1000), m = Math.floor(s / 60);
+        el.textContent = (m < 10 ? '0' : '') + m + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
+        if (reste <= 0) {
+          bloc.classList.add('compte-fin'); bloc.firstElementChild.textContent = 'Black Friday terminé';
+          // Fin de la promo : les prix reviennent aux prix de base, sans réduction
+          document.body.classList.add('promo-finie');
+          Array.prototype.forEach.call(document.querySelectorAll('.formule'), function (carte) {
+            var ancien = carte.querySelector('.ancien s'), prix = carte.querySelector('.prix');
+            if (ancien && prix && prix.firstChild) prix.firstChild.nodeValue = ancien.textContent;
+          });
+          return;
+        }
+        setTimeout(maj, 250);
+      }
+      maj();
+    })();
+  </script>
+  <script>
+    // « Ce que tu débloques » : suit l'abonnement coché (et le Pack voyageur s'il est coché)
+    (function () {
+      var titre = document.getElementById('debloque-titre');
+      var sous = document.getElementById('debloque-sous');
+      var liste = document.getElementById('debloque-liste');
+      var radios = document.querySelectorAll('input[name="formule"]');
+      var pack = document.querySelector('input[name="pack"]');
+      var NOMS_FORMULES = { mensuel: "l'abonnement mensuel", trimestriel: "l'abonnement tous les 3 mois", annuel: "l'abonnement annuel" };
+      var PACK = ['Trajets 100 % réalistes : avion près d\'un aéroport, bateau en mer, voiture, train près d\'une gare…', 'La carte des 50 meilleurs spots : hôtels de luxe, aéroport, restos, monuments'];
+
+      function maj() {
+        var choisie = null;
+        Array.prototype.forEach.call(radios, function (r) { if (r.checked) choisie = r; });
+        var items = [];
+        if (choisie) {
+          Array.prototype.forEach.call(choisie.closest('.formule').querySelectorAll('li'), function (li) { items.push(li.textContent.trim()); });
+        }
+        if (pack && pack.checked) items = items.concat(PACK);
+
+        titre.textContent = 'Ce que tu débloques' + (choisie ? ' avec ' + NOMS_FORMULES[choisie.value] : '');
+        sous.textContent = items.length ? (choisie ? 'Tout ça est inclus dans ta formule.' : 'Inclus dans le Pack voyageur.') : 'Choisis une formule pour voir ce qu\'elle débloque.';
+        sous.hidden = false;
+        liste.textContent = '';
+        items.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; liste.appendChild(li); });
+        liste.hidden = !items.length;
+      }
+      Array.prototype.forEach.call(radios, function (r) { r.addEventListener('change', maj); });
+      if (pack) pack.addEventListener('change', maj);
+      document.addEventListener('formule-change', maj);
+      maj();
+    })();
+  </script>
+  <script>
+    // Avis des abonnés qui défilent
+    (function () {
+      var avis = [
+        ["Lucas M.", "Incroyable, j'étais à Ibiza en 2 secondes. Je recommande à 100 %."],
+        ["Sarah B.", "Je suis au taff et mes amis pensent que je suis à Dubaï, ça marche trop bien."],
+        ["Thomas R.", "C'était super simple à utiliser avec mon iPhone, je recommande les gars."],
+        ["Paul V.", "Mes potes pensent que je suis à Bali alors que je suis juste malade."],
+        ["Yanis K.", "Je me suis mis à Las Vegas et depuis ce matin mon ex fait que de m'envoyer des messages."]
+      ];
+      var cartes = avis.map(function (a) {
+        return '<div class="avis-card"><div class="etoiles" aria-label="5 étoiles sur 5">★★★★★</div><p>« ' + a[1] + ' »</p><div class="auteur"><strong>' + a[0] + '</strong><span class="verifie"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Client satisfait</span></div></div>';
+      }).join('');
+      document.getElementById('avis').innerHTML = cartes + cartes;
+    })();
+
+    // « Reprends là où tu en étais » : les trois abonnements proposés de nouveau, synchronisés avec ceux du haut
+    (function () {
+      var cible = document.getElementById('reprise');
+      Array.prototype.forEach.call(document.querySelectorAll('.formules > .formule'), function (carte) {
+        var copie = carte.cloneNode(true);
+        Array.prototype.forEach.call(copie.querySelectorAll('input[type="radio"]'), function (r) { r.name = 'formule2'; r.checked = false; });
+        cible.appendChild(copie);
+      });
+      var tous = document.querySelectorAll('input[name="formule"], input[name="formule2"]');
+      function sync(valeur) {
+        Array.prototype.forEach.call(tous, function (r) { r.checked = (r.value === valeur); });
+        document.dispatchEvent(new Event('formule-change'));
+      }
+      Array.prototype.forEach.call(tous, function (r) {
+        r.addEventListener('change', function () { sync(r.value); });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      var NOMS = ['Dubaï', 'Miami', 'Marbella', 'Monaco', 'Sydney', 'Rio', 'Mykonos', 'Le Caire', 'Paris'];
+      function norm(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+      var param = null;
+      try { param = sessionStorage.getItem('ville'); } catch (e) {}
+      var nom = 'Sydney';
+      NOMS.forEach(function (n) { if (norm(n) === norm(param)) nom = n; });
+
+      var prep = 'à ', affiche = nom;
+      if (nom === 'Le Caire') { prep = 'au '; affiche = 'Caire'; }
+
+      var h1 = document.getElementById('titre');
+      h1.textContent = 'Mets-toi ' + prep;
+      var s = document.createElement('span'); s.textContent = affiche;
+      h1.appendChild(s);
+      h1.appendChild(document.createTextNode(' en 30 secondes'));
+    })();
+  </script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="places.js"></script>
+  <script src="nav.js"></script>
+</body>
+</html>

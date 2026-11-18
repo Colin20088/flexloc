@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flexloc – Changement de continent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; --jaune: #f5ff4f; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--texte); background: var(--blanc); line-height: 1.6; min-height: 100vh;
+    }
+
+    /* Barre de navigation noire */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      background: rgba(0, 0, 0, .88);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      color: var(--blanc);
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 20px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; letter-spacing: .5px; color: var(--blanc); text-decoration: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+    .nav-links a { color: #ddd; text-decoration: none; font-size: .95rem; }
+    .nav-cta { background: var(--blanc); color: var(--noir) !important; padding: 8px 18px; border-radius: 999px; font-weight: 600; }
+    .alerte { display: none; background: #e11d2a; color: #fff; text-align: center; font-size: .85rem; font-weight: 700; height: 32px; line-height: 32px; }
+
+    main {
+      min-height: 100vh; padding: 110px 20px 80px; text-align: center;
+      background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%);
+    }
+    .conteneur { max-width: 760px; margin: 0 auto; }
+
+    /* Indicateur d'étapes */
+    .etapes-barre { margin-bottom: 18px; }
+    .tirets { display: flex; justify-content: center; gap: 8px; }
+    .tirets span { width: 44px; height: 5px; border-radius: 999px; background: var(--noir); }
+    .etapes-barre p { margin-top: 8px; font-size: .9rem; font-weight: 600; color: #666; }
+
+    h1 {
+      font-family: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-weight: 800; letter-spacing: -.03em; line-height: 1.1;
+      font-size: clamp(2.2rem, 6vw, 3.4rem); margin-bottom: 24px;
+    }
+    h1 span { background: var(--jaune); padding: 0 .15em; border-radius: 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+    .carte {
+      background: #0d0d12; border-radius: 24px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .carte canvas { display: block; width: 100%; height: auto; }
+
+    .legende { margin-top: 18px; font-weight: 700; font-size: 1.05rem; min-height: 1.7em; }
+
+    .fin { margin-top: 20px; }
+    .fin[hidden] { display: none; }
+    .btn {
+      display: inline-block; background: var(--noir); color: var(--blanc); text-decoration: none;
+      padding: 16px 34px; border-radius: 999px; font-weight: 700; font-size: 1.05rem; transition: transform .15s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn[aria-disabled="true"] { background: #d3d3da; color: #8e8e99; cursor: not-allowed; pointer-events: none; transform: none; }
+
+    @media (max-width: 640px) {
+      .alerte { display: block; }
+      main { padding-top: 130px; }
+      .nav-links li:not(:last-child) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="alerte">Plus que <span data-places>7</span> – capacité limitée</div>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
+          <rect width="40" height="40" rx="10" fill="#fffc00"/>
+          <ellipse cx="20" cy="29.5" rx="9.5" ry="3.8" fill="none" stroke="#000" stroke-width="2.3"/>
+          <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
+          <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
+        </svg>
+        <span>Flexloc</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="teleportation.html" class="nav-cta">Connexion</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <div class="conteneur">
+      <div class="etapes-barre" role="img" aria-label="Étape 3 sur 3">
+        <div class="tirets"><span></span><span></span><span></span></div>
+        <p>Étape 3 sur 3</p>
+      </div>
+
+      <h1 id="titre">Changement de <span>continent</span></h1>
+
+      <div class="carte">
+        <canvas id="globe" role="img" aria-label="Le globe tourne d'un continent à l'autre puis se rapproche de la ville choisie"></canvas>
+      </div>
+
+      <p class="legende" id="legende" aria-live="polite"></p>
+
+      <div class="fin" id="fin">
+        <a href="connexion.html" class="btn" id="teleporter" aria-disabled="true" tabindex="-1">Me téléporter</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script>
+    (function () {
+      var VILLES = {
+        'dubai':   { nom: 'Dubaï',  cont: 'Asie', coord: [55.27, 25.20] },
+        'miami':   { nom: 'Miami',  cont: 'Amérique du Nord', coord: [-80.19, 25.76] },
+        'marbella':{ nom: 'Marbella', cont: 'Europe', coord: [-4.88, 36.51] },
+        'monaco':  { nom: 'Monaco', cont: 'Europe', coord: [7.42, 43.73] },
+        'sydney':  { nom: 'Sydney', cont: 'Océanie', coord: [151.21, -33.87] },
+        'rio':     { nom: 'Rio',    cont: 'Amérique du Sud', coord: [-43.17, -22.91] },
+        'mykonos': { nom: 'Mykonos', cont: 'Europe', coord: [25.33, 37.45] },
+        'le caire':{ nom: 'Le Caire', cont: 'Afrique', coord: [31.24, 30.04] },
+        'paris':   { nom: 'Paris',  cont: 'Europe', coord: [2.35, 48.86] }
+      };
+      function norm(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+
+      var param = new URLSearchParams(location.search).get('ville');
+      if (!param && location.hash.length > 1) { try { param = decodeURIComponent(location.hash.slice(1)); } catch (e) {} }
+      if (!param) { try { param = sessionStorage.getItem('ville'); } catch (e) {} }
+      var dest = VILLES[norm(param)];
+      if (!dest) { location.replace('teleportation.html'); return; }
+
+      // Départ : l'Europe, sauf si la destination y est déjà (alors Amérique du Nord)
+      var depart = dest.cont === 'Europe'
+        ? { cont: 'Amérique du Nord', coord: VILLES.miami.coord }
+        : { cont: 'Europe', coord: [10, 47] };
+
+      document.title = 'Flexloc – ' + dest.nom;
+      document.getElementById('teleporter').textContent = 'Me téléporter à ' + dest.nom;
+      // Tant que l'animation n'est pas finie, le bouton est inactif (même au clavier)
+      document.getElementById('teleporter').addEventListener('click', function (e) {
+        if (this.getAttribute('aria-disabled') === 'true') e.preventDefault();
+      });
+
+      var canvas = document.getElementById('globe');
+      var legende = document.getElementById('legende');
+      var land = null, W = 0, H = 0, DPR = 1;
+
+      function ease(x) { return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+      function seg(t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); }
+
+      function taille() {
+        W = canvas.parentNode.clientWidth;
+        if (!W) return false;
+        H = Math.round(Math.min(W * 0.95, 560));
+        DPR = window.devicePixelRatio || 1;
+        canvas.width = W * DPR; canvas.height = H * DPR;
+        return true;
+      }
+
+      function pastille(ctx, texte, x, y, fond, couleur, alpha) {
+        var fs = Math.max(12, Math.min(15, W / 36));
+        ctx.font = '700 ' + fs + 'px system-ui, sans-serif';
+        var pw = ctx.measureText(texte).width + 22, ph = fs + 12;
+        var px = Math.max(8, Math.min(W - pw - 8, x - pw / 2)), py = y - ph - 14;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(px, py, pw, ph, ph / 2); else ctx.rect(px, py, pw, ph);
+        ctx.fillStyle = fond; ctx.fill();
+        ctx.fillStyle = couleur; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(texte, px + 11, py + ph / 2 + 1);
+        ctx.globalAlpha = 1;
+      }
+
+      function point(ctx, p, r, couleur, halo) {
+        ctx.beginPath(); ctx.arc(p[0], p[1], r * 2.4, 0, 2 * Math.PI); ctx.fillStyle = halo; ctx.fill();
+        ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 2 * Math.PI); ctx.fillStyle = couleur; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#0d0d12'; ctx.stroke();
+      }
+
+      var interp = d3.geoInterpolate(depart.coord, dest.coord);
+      var graticule = d3.geoGraticule10();
+      var DUREE = 8000, debut = null, fini = false;
+
+      function image(t) {
+        var ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+
+        var rot = ease(seg(t, .12, .62));      // rotation d'un continent à l'autre
+        var zoom = ease(seg(t, .55, 1));       // rapprochement de la ville
+        var c = interp(rot);
+        var S = Math.min(W, H) * 0.42 * (1 + 2.8 * zoom);
+
+        var proj = d3.geoOrthographic().translate([W / 2, H / 2]).scale(S).clipAngle(90).rotate([-c[0], -c[1]]);
+        var path = d3.geoPath(proj, ctx);
+
+        ctx.beginPath(); path({ type: 'Sphere' }); ctx.fillStyle = '#17171f'; ctx.fill();
+        ctx.beginPath(); path(graticule); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.stroke();
+        if (land) { ctx.beginPath(); path(land); ctx.fillStyle = '#c9c9d3'; ctx.fill(); }
+        ctx.beginPath(); path({ type: 'Sphere' }); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.stroke();
+
+        var r = Math.max(3.5, Math.min(W, H) / 120);
+
+        // Continent de départ
+        if (t < .45 && d3.geoDistance(c, depart.coord) < 1.45) {
+          var a = Math.max(0, 1 - t / .4), pd = proj(depart.coord);
+          ctx.globalAlpha = a; point(ctx, pd, r, '#ffffff', 'rgba(255,255,255,.2)'); ctx.globalAlpha = 1;
+          pastille(ctx, depart.cont, pd[0], pd[1], '#ffffff', '#000', a);
+        }
+
+        // Ville choisie
+        if (d3.geoDistance(c, dest.coord) < 1.45) {
+          var pz = proj(dest.coord);
+          var pulse = (performance.now() % 1400) / 1400;
+          if (zoom > .4) {
+            ctx.beginPath(); ctx.arc(pz[0], pz[1], r * (2 + pulse * 5), 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(245,255,79,' + (.6 * (1 - pulse)) + ')'; ctx.lineWidth = 2; ctx.stroke();
+          }
+          point(ctx, pz, r, '#f5ff4f', 'rgba(245,255,79,.25)');
+          if (zoom > .75) pastille(ctx, dest.nom + ' – ' + dest.cont, pz[0], pz[1] - r * 1.5, '#f5ff4f', '#000', seg(zoom, .75, .95));
+        }
+      }
+
+      function texte(t) {
+        if (t >= 1) return 'C\'est fait : ta loc est à ' + dest.nom + '.';
+        if (t < .12) return 'Position actuelle : ' + depart.cont;
+        if (t < .6) return depart.cont + ' → ' + dest.cont;
+        return 'Approche de ' + dest.nom + '…';
+      }
+
+      function etape(ts) {
+        if (!W && !taille()) { requestAnimationFrame(etape); return; }
+        if (debut === null) debut = ts;
+        var t = Math.min(1, (ts - debut) / DUREE);
+        image(t);
+        legende.textContent = texte(t);
+        if (t < 1) requestAnimationFrame(etape);
+        else if (!fini) {
+          fini = true;
+          document.getElementById('titre').innerHTML = 'Ta loc est à <span></span>';
+          document.querySelector('#titre span').textContent = dest.nom;
+          var bouton = document.getElementById('teleporter');
+          bouton.removeAttribute('aria-disabled');
+          bouton.removeAttribute('tabindex');
+        }
+      }
+
+      window.addEventListener('resize', function () { if (taille() && fini) image(1); });
+      requestAnimationFrame(etape);
+
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json')
+        .then(function (r) { return r.json(); })
+        .then(function (topo) {
+          var g = topojson.feature(topo, topo.objects.land);
+          (g.type === 'FeatureCollection' ? g.features : [g]).forEach(function (f) {
+            var geom = f.geometry || f;
+            if (geom.type === 'MultiPolygon') {
+              geom.coordinates = geom.coordinates.filter(function (poly) {
+                return Math.max.apply(null, poly[0].map(function (pt) { return pt[1]; })) > -60;
+              });
+            }
+          });
+          land = g;
+        })
+        .catch(function () {});
+    })();
+  </script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="places.js"></script>
+  <script src="nav.js"></script>
+</body>
+</html>
