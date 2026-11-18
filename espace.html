@@ -124,6 +124,8 @@
         return div;
       }
 
+      var essais = 0, apresPaiement = location.hash === '#paye';
+
       function demarrer() {
         var auth = window.flexlocAuth;
         if (!auth || !auth.configure) { el('chargement').hidden = true; el('erreur').hidden = false; el('erreur').textContent = "La connexion n'est pas configurée."; return; }
@@ -133,8 +135,19 @@
           el('email').textContent = r.email;
           if (r.erreur) { el('erreur').hidden = false; el('erreur').textContent = 'Impossible de charger tes abonnements : ' + r.erreur; return; }
           var liste = el('liste');
+          liste.innerHTML = '';
           (r.abonnements || []).forEach(function (a) { liste.appendChild(carte(a)); });
-          el('vide').hidden = (r.abonnements || []).length > 0;
+          var aucun = (r.abonnements || []).length === 0;
+          // Juste après un paiement, Whop met quelques secondes à nous prévenir : on réessaie
+          if (aucun && apresPaiement && essais < 15) {
+            essais++;
+            el('chargement').hidden = false;
+            el('chargement').textContent = 'Paiement reçu, activation de ton accès…';
+            setTimeout(demarrer, 3000);
+            return;
+          }
+          el('chargement').hidden = true;
+          el('vide').hidden = !aucun;
         });
       }
       if (document.readyState === 'complete') demarrer(); else window.addEventListener('load', demarrer);

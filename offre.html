@@ -551,11 +551,12 @@
           var connecte = false; try { connecte = localStorage.getItem('flexloc_connecte') === '1'; } catch (e) {}
           if (!connecte) { location.href = 'connexion.html'; return; }
 
+          // Le paiement se fait sur le site (page "paiement"), pas sur whop.com : on n'est plus renvoyé vers l'appli Whop.
           var promoFinie = document.body.classList.contains('promo-finie');
-          var lien = formule ? WHOP[formule][promoFinie ? 'base' : 'promo'] : PACK;
-          // Abonnement + pack : le pack se règle dans un second onglet
-          if (formule && avecPack) window.open(PACK, '_blank', 'noopener');
-          location.href = lien;
+          var cles = [];
+          if (formule) cles.push(formule + (promoFinie ? '-base' : '-promo'));
+          if (avecPack) cles.push('pack');
+          location.href = 'paiement.html#' + cles.join('+');
         });
       });
     })();

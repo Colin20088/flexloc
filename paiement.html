@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flexloc – Paiement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; --jaune: #f5ff4f; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texte); background: var(--blanc); line-height: 1.6; min-height: 100vh; }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 10; background: rgba(0,0,0,.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--blanc); }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; letter-spacing: .5px; color: var(--blanc); text-decoration: none; }
+    .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+    .nav-links a { color: #ddd; text-decoration: none; font-size: .95rem; }
+    .nav-cta { background: var(--blanc); color: var(--noir) !important; padding: 8px 18px; border-radius: 999px; font-weight: 600; }
+    .alerte { display: none; background: #e11d2a; color: #fff; text-align: center; font-size: .85rem; font-weight: 700; height: 32px; line-height: 32px; }
+
+    main { min-height: 100vh; padding: 120px 20px 80px; text-align: center; background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%); }
+    .conteneur { max-width: 520px; margin: 0 auto; }
+    h1 { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; font-size: clamp(2rem, 6vw, 2.8rem); margin-bottom: 18px; }
+    .resume { display: inline-flex; flex-direction: column; gap: 2px; padding: 12px 22px; margin-bottom: 8px; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+    .resume strong { font-size: 1.05rem; }
+    .resume span { color: #555; }
+    .etape { color: #888; font-size: .9rem; margin-bottom: 18px; min-height: 1.3em; }
+    .cadre { text-align: left; background: var(--blanc); border: 1px solid #e3e3e8; border-radius: 24px; box-shadow: 0 4px 24px rgba(0,0,0,.06); padding: 18px; min-height: 340px; }
+    .chargement { color: #777; text-align: center; padding: 60px 0; }
+    .securise { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font-size: .85rem; font-weight: 600; color: #16a34a; }
+    .retour { display: inline-block; margin-top: 16px; color: #888; font-size: .92rem; text-decoration: none; }
+    .retour:hover { color: var(--noir); text-decoration: underline; }
+    @media (max-width: 640px) { .alerte { display: block; } main { padding-top: 150px; } .nav-links li:not(:last-child) { display: none; } .cadre { padding: 10px; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="alerte">Plus que <span data-places>7</span> – capacité limitée</div>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
+          <rect width="40" height="40" rx="10" fill="#fffc00"/>
+          <ellipse cx="20" cy="29.5" rx="9.5" ry="3.8" fill="none" stroke="#000" stroke-width="2.3"/>
+          <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
+          <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
+        </svg>
+        <span>Flexloc</span>
+      </a>
+      <ul class="nav-links"><li><a href="connexion.html" class="nav-cta">Connexion</a></li></ul>
+    </div>
+  </nav>
+
+  <main>
+    <div class="conteneur">
+      <h1>Finalise ton paiement</h1>
+      <div class="resume" id="resume"><strong id="nom">…</strong><span id="prix"></span></div>
+      <p class="etape" id="etape"></p>
+      <div class="cadre" id="cadre"><p class="chargement" id="chargement">Chargement du paiement sécurisé…</p></div>
+      <p class="securise">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8.3-8 9.5C7.2 20.3 4 16.5 4 12V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        Paiement sécurisé, encaissé par Whop
+      </p>
+      <a class="retour" href="offre.html">← Changer de formule</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Formules → offres Whop (identifiants des offres, lus sur les pages Whop)
+      var PLANS = {
+        'mensuel-promo':     { plan: 'plan_l8Ho8AsUgnNqH', nom: 'Abonnement mensuel',          prix: '11,90 € par mois' },
+        'mensuel-base':      { plan: 'plan_yekjjKeON7EG1', nom: 'Abonnement mensuel',          prix: '15,90 € par mois' },
+        'trimestriel-promo': { plan: 'plan_VX46TUeYgLP7Y', nom: 'Abonnement tous les 3 mois',  prix: '29,90 € tous les 3 mois' },
+        'trimestriel-base':  { plan: 'plan_Jv5U42Qet3Ukp', nom: 'Abonnement tous les 3 mois',  prix: '39,90 € tous les 3 mois' },
+        'annuel-promo':      { plan: 'plan_bDttClAnGqFe4', nom: 'Abonnement annuel',           prix: '69,90 € par an' },
+        'annuel-base':       { plan: 'plan_fknTbKiPlD7vs', nom: 'Abonnement annuel',           prix: '129,90 € par an' },
+        'pack':              { plan: 'plan_itUEtYdVwjh27', nom: 'Pack voyageur',               prix: '15,90 € (paiement unique)' }
+      };
+
+      // La page est appelée avec par exemple  paiement.html#annuel-promo+pack  (le pack se règle ensuite)
+      var items = location.hash.slice(1).split('+').filter(function (k) { return PLANS[k]; });
+      if (!items.length) { location.replace('offre.html'); return; }
+      var total = items.length;
+      var courant = PLANS[items[0]];
+
+      document.getElementById('nom').textContent = courant.nom;
+      document.getElementById('prix').textContent = courant.prix;
+      if (total > 1) document.getElementById('etape').textContent = 'Étape 1 sur ' + total + ' : ensuite, le Pack voyageur.';
+      else if (items[0] === 'pack' && sessionStorage.getItem('flexloc_pack_suite') === '1') document.getElementById('etape').textContent = 'Dernière étape : le Pack voyageur.';
+
+      // Appelé par Whop quand le paiement est réussi
+      window.flexlocPaiementOk = function () {
+        items.shift();
+        if (items.length) {
+          try { sessionStorage.setItem('flexloc_pack_suite', '1'); } catch (e) {}
+          location.hash = '#' + items.join('+');
+          location.reload();
+        } else {
+          try { sessionStorage.removeItem('flexloc_pack_suite'); } catch (e) {}
+          location.href = 'espace.html#paye';
+        }
+      };
+
+      function afficher(email) {
+        var cadre = document.getElementById('cadre');
+        cadre.innerHTML = '';
+        var d = document.createElement('div');
+        d.id = 'whop-embedded-checkout';
+        d.setAttribute('data-whop-checkout-plan-id', courant.plan);
+        d.setAttribute('data-whop-checkout-prefill-email', email);    // même e-mail que le compte Flexloc
+        d.setAttribute('data-whop-checkout-disable-email', 'true');   // et non modifiable
+        d.setAttribute('data-whop-checkout-theme', 'light');
+        d.setAttribute('data-whop-checkout-on-complete', 'flexlocPaiementOk');
+        cadre.appendChild(d);
+        var s = document.createElement('script');
+        s.async = true; s.defer = true;
+        s.src = 'https://js.whop.com/static/checkout/loader.js';
+        document.head.appendChild(s);
+      }
+
+      function demarrer() {
+        var a = window.flexlocAuth;
+        if (!a || !a.configure) { document.getElementById('chargement').textContent = "La connexion n'est pas configurée."; return; }
+        a.email().then(function (email) {
+          if (!email) { location.href = 'connexion.html'; return; }   // il faut un compte pour rattacher l'achat
+          afficher(email);
+        });
+      }
+      if (document.readyState === 'complete') demarrer(); else window.addEventListener('load', demarrer);
+    })();
+  </script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="places.js"></script>
+  <script src="nav.js"></script>
+</body>
+</html>
