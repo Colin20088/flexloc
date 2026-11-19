@@ -43,7 +43,8 @@
     .actions { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
     .btn { display: inline-block; background: var(--noir); color: var(--blanc); text-decoration: none; padding: 13px 26px; border-radius: 999px; font-weight: 700; font-size: .98rem; border: 0; cursor: pointer; font-family: inherit; }
     .btn.clair { background: var(--blanc); color: var(--noir); border: 1px solid var(--noir); }
-    .carte.app { border-color: #000; border-width: 2px; }`n    .vide, .chargement { color: #666; margin: 30px 0; }
+    .carte.app { border-color: #000; border-width: 2px; }
+    .vide, .chargement { color: #666; margin: 30px 0; }
     .erreur { color: #c81e1e; margin: 20px 0; font-weight: 600; }
     [hidden] { display: none !important; }
 
@@ -54,6 +55,37 @@
       body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
+    /* Offre « Téléportation illimitée » */
+    .illimite-fond { position: fixed; inset: 0; z-index: 60; display: flex; overflow-y: auto; padding: 16px; background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+    .illimite-carte {
+      position: relative; width: 100%; max-width: 400px; margin: auto; padding: 24px 22px 18px; border-radius: 30px; text-align: center; color: #fff; overflow: hidden;
+      background: radial-gradient(circle at 85% -10%, rgba(245,255,79,.30), transparent 55%), linear-gradient(160deg, #1b1b22 0%, #000 70%);
+      border: 1px solid rgba(245,255,79,.5);
+      box-shadow: 0 0 0 1px rgba(245,255,79,.12), 0 28px 80px rgba(0,0,0,.6), 0 0 70px rgba(245,255,79,.2);
+      animation: illimite-arrive .5s cubic-bezier(.2,.9,.3,1.15) both;
+    }
+    .illimite-carte::after { content: ""; position: absolute; top: -60%; left: -40%; width: 40%; height: 220%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent); transform: rotate(18deg); animation: illimite-brille 4.5s ease-in-out infinite; pointer-events: none; }
+    @keyframes illimite-arrive { from { opacity: 0; transform: translateY(26px) scale(.94); } to { opacity: 1; transform: none; } }
+    @keyframes illimite-brille { 0%, 55% { left: -45%; } 100% { left: 130%; } }
+    .illimite-infini { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; font-size: 3.8rem; line-height: .9; color: var(--jaune); text-shadow: 0 0 34px rgba(245,255,79,.6); animation: illimite-flotte 3.2s ease-in-out infinite; }
+    @keyframes illimite-flotte { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .illimite-etat { margin: 10px auto 0; max-width: 260px; font-size: .82rem; font-weight: 700; color: #cfcfd6; }
+    .illimite-jauge { height: 7px; margin: 7px auto 0; max-width: 260px; border-radius: 999px; background: rgba(255,255,255,.14); overflow: hidden; }
+    .illimite-jauge i { display: block; height: 100%; width: 100%; background: var(--jaune); border-radius: 999px; }
+    .illimite-carte h2 { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; font-size: 1.85rem; margin: 12px 0 4px; }
+    .illimite-carte h2 span { color: var(--jaune); }
+    .illimite-sous { color: #c3c3cc; font-size: .95rem; margin-bottom: 10px; }
+    .illimite-prix { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; font-size: 2.8rem; letter-spacing: -.04em; line-height: 1; color: #fff; }
+    .illimite-prix small { font-family: system-ui, sans-serif; font-weight: 600; font-size: 1rem; color: #cfcfd6; letter-spacing: 0; margin-left: 4px; }
+    .illimite-carte ul { list-style: none; margin: 12px auto 14px; max-width: 270px; text-align: left; display: grid; gap: 8px; }
+    .illimite-carte li { position: relative; padding-left: 28px; font-size: .96rem; color: #e8e8ee; }
+    .illimite-carte li::before { content: "✓"; position: absolute; left: 0; top: 1px; width: 19px; height: 19px; border-radius: 50%; background: var(--jaune); color: #000; font-size: .7rem; font-weight: 800; display: grid; place-items: center; }
+    .illimite-bouton { display: block; width: 100%; padding: 16px 20px; border: 0; border-radius: 999px; background: var(--jaune); color: #000; font: inherit; font-weight: 800; font-size: 1.05rem; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 0 0 30px rgba(245,255,79,.38); transition: transform .15s, box-shadow .15s; }
+    .illimite-bouton:hover { transform: translateY(-2px); box-shadow: 0 0 44px rgba(245,255,79,.55); }
+    .illimite-bouton[aria-disabled="true"] { background: #3a3a42; color: #9a9aa5; box-shadow: none; pointer-events: none; }
+    .illimite-plus-tard { display: inline-block; margin-top: 12px; background: none; border: 0; color: #9a9aa5; font: inherit; font-size: .9rem; cursor: pointer; }
+    .illimite-plus-tard:hover { color: #fff; text-decoration: underline; }
+    @media (prefers-reduced-motion: reduce) { .illimite-carte, .illimite-carte::after, .illimite-infini { animation: none; } }
   </style>
 </head>
 <body>
@@ -67,7 +99,7 @@
           <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
           <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
         </svg>
-        <span>Flexloc</span>
+        <span>Flexloc<b style="color:#f5ff4f;font:inherit">.io</b></span>
       </a>
       <ul class="nav-links">
         <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
@@ -85,8 +117,11 @@
       <div class="carte app" id="app-bloc" hidden>
         <span class="badge actif">Accès débloqué</span>
         <h2>Ton app Flexloc</h2>
-        <p>Connecte-toi avec le même e-mail et le même mot de passe que sur le site, puis choisis ta destination.</p>
-        <div class="actions"><a class="btn" id="app-lien" href="#" target="_blank" rel="noopener">Ouvrir l'app</a></div>
+        <p>Commence par ajouter Flexloc à l'écran d'accueil de ton téléphone (iPhone ou Android) : le guide te montre comment faire en quelques secondes. Ensuite, ouvre l'app et choisis ta destination.</p>
+        <div class="actions">
+          <a class="btn" href="guide.html">Ajouter à mon écran d'accueil</a>
+          <a class="btn clair" id="app-lien" href="#" target="_blank" rel="noopener">Ouvrir l'app</a>
+        </div>
       </div>
       <div id="liste"></div>
       <div class="vide" id="vide" hidden>
@@ -97,9 +132,27 @@
     </div>
   </main>
 
+  <div class="illimite-fond" id="illimite" hidden role="dialog" aria-modal="true" aria-labelledby="illimite-titre">
+    <div class="illimite-carte">
+      <div class="illimite-infini" aria-hidden="true">∞</div>
+      <p class="illimite-etat">5 / 5 déplacements utilisés</p>
+      <div class="illimite-jauge" aria-hidden="true"><i></i></div>
+      <h2 id="illimite-titre">Téléportation <span>illimitée</span></h2>
+      <p class="illimite-sous">Tu as utilisé tes 5 déplacements. Continue sans limite.</p>
+      <p class="illimite-prix">5,90 €</p>
+      <ul>
+        <li>Déplacements sans limite</li>
+        <li>Change de destination quand tu veux</li>
+        <li>Paiement unique</li>
+      </ul>
+      <a class="illimite-bouton" id="illimite-bouton" href="paiement.html#illimite">Débloquer mon accès</a>
+      <button type="button" class="illimite-plus-tard" id="illimite-fermer">Plus tard</button>
+    </div>
+  </div>
+
   <script>
     (function () {
-      var NOMS = { mensuel: 'Abonnement mensuel', trimestriel: 'Abonnement tous les 3 mois', annuel: 'Abonnement annuel', pack: 'Pack voyageur', inconnu: 'Abonnement Flexloc' };
+      var NOMS = { illimite: 'Téléportation illimitée', mensuel: 'Abonnement mensuel', trimestriel: 'Abonnement tous les 3 mois', annuel: 'Abonnement annuel', pack: 'Pack voyageur', inconnu: 'Abonnement Flexloc' };
       var el = function (id) { return document.getElementById(id); };
 
       function date(iso) {
@@ -128,6 +181,13 @@
         else p.textContent = 'Cet abonnement est terminé.';
         div.appendChild(p);
 
+        // Un abonné change de formule ici (et nulle part ailleurs sur le site)
+        if (actif && a.offre !== 'pack') {
+          var chg = document.createElement('div'); chg.className = 'actions';
+          var lc = document.createElement('a'); lc.className = 'btn'; lc.href = 'offre.html#changer'; lc.textContent = 'Changer de formule';
+          chg.appendChild(lc); div.appendChild(chg);
+        }
+
         if (a.manage_url) {
           var actions = document.createElement('div'); actions.className = 'actions';
           var lien = document.createElement('a'); lien.className = 'btn clair'; lien.href = a.manage_url; lien.target = '_blank'; lien.rel = 'noopener';
@@ -154,9 +214,25 @@
           // Un abonnement actif donne accès à l'app
           var cfg = window.FLEXLOC_SUPABASE || {};
           var actif = (r.abonnements || []).some(function (a) {
-            return a.offre !== 'pack' && (a.status === 'active' || a.status === 'trialing' || (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
+            return a.offre !== 'pack' && a.offre !== 'illimite' && (a.status === 'active' || a.status === 'trialing' || (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
           });
           if (actif && cfg.appUrl) { el('app-lien').href = cfg.appUrl; el('app-bloc').hidden = false; }
+
+          // Premier abonnement (mensuel) : 5 déplacements maximum, puis on propose « Téléportation illimitée »
+          var LIMITE = 5, utilises = 0;
+          try { utilises = parseInt(localStorage.getItem('flexloc_deplacements'), 10) || 0; } catch (e) {}
+          var mensuel = (r.abonnements || []).some(function (a) { return a.offre === 'mensuel' && (a.status === 'active' || a.status === 'trialing'); });
+          var dejaVu = false; try { dejaVu = sessionStorage.getItem('flexloc_illimite_vu') === '1'; } catch (e) {}
+          var illimite = (r.abonnements || []).some(function (a) { return a.offre === 'illimite' && (a.status === 'active' || a.status === 'trialing' || a.status === 'completed'); });
+          if (mensuel && !illimite && utilises >= LIMITE && !dejaVu) {
+            var btn = el('illimite-bouton');
+            if (!cfg.planIllimite) { btn.setAttribute('aria-disabled', 'true'); btn.removeAttribute('href'); }
+            el('illimite').hidden = false;
+            el('illimite-fermer').addEventListener('click', function () {
+              el('illimite').hidden = true;
+              try { sessionStorage.setItem('flexloc_illimite_vu', '1'); } catch (e) {}
+            });
+          }
           // Juste après un paiement, Whop met quelques secondes à nous prévenir : on réessaie
           if (aucun && apresPaiement && essais < 15) {
             essais++;
@@ -176,5 +252,6 @@
   <script src="auth.js"></script>
   <script src="places.js"></script>
   <script src="nav.js"></script>
+  <script src="abonne.js"></script>
 </body>
 </html>

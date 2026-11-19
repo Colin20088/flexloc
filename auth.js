@@ -7,7 +7,10 @@
   var client = null;
 
   function drapeau(actif) {
-    try { if (actif) localStorage.setItem(CLE, '1'); else localStorage.removeItem(CLE); } catch (e) {}
+    try {
+      if (actif) localStorage.setItem(CLE, '1');
+      else { localStorage.removeItem(CLE); localStorage.removeItem('flexloc_abonne'); }
+    } catch (e) {}
   }
   function prevenir() { window.dispatchEvent(new Event('flexloc-auth')); }
 
@@ -27,7 +30,11 @@
   }
 
   var pret = charger().then(function () {
-    client = window.supabase.createClient(cfg.url, cfg.anonKey);
+    // La session est gardée dans le navigateur et renouvelée automatiquement :
+    // le visiteur reste connecté tant qu'il ne clique pas sur « Se déconnecter ».
+    client = window.supabase.createClient(cfg.url, cfg.anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
     client.auth.onAuthStateChange(function (evt, session) {
       var avant = localStorage.getItem(CLE) === '1';
       drapeau(!!session);
@@ -120,6 +127,21 @@
       });
     }).catch(function (e) { return { connecte: false, erreur: traduire(e) }; });
   };
+
+  // Abonnement actif (hors Pack voyageur) ? Même règle que « Mon espace » : en cours, ou résilié mais payé jusqu'à la fin.
+  api.estActif = function (a) {
+    return !!a && a.offre !== 'pack' && a.offre !== 'illimite' && (a.status === 'active' || a.status === 'trialing' ||
+      (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
+  };
+
+  // Mémorise « cet utilisateur est abonné » pour que toutes les pages s'adaptent (plus d'offres affichées)
+  pret.then(function () { return api.espace(); }).then(function (r) {
+    if (!r || !r.connecte || r.erreur) return;
+    var actif = (r.abonnements || []).some(api.estActif);
+    var avant = localStorage.getItem('flexloc_abonne') === '1';
+    try { if (actif) localStorage.setItem('flexloc_abonne', '1'); else localStorage.removeItem('flexloc_abonne'); } catch (e) {}
+    if (avant !== actif) window.dispatchEvent(new Event('flexloc-abonne'));
+  }).catch(function () {});
 
   api.deconnexion = function () {
     return pret.then(function (c) { return c.auth.signOut(); })

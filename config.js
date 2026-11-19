@@ -6,5 +6,7 @@ window.FLEXLOC_SUPABASE = {
   url: 'https://wjabuoactqcnajscokru.supabase.co',
   anonKey: 'sb_publishable_uLEZWJEH8MaNB9k1sCBdbA_vlfBVN2l',
   // Adresse de l'app de changement de position (à remplacer par l'adresse définitive une fois l'app déployée)
+  // Identifiant (plan_...) de l'offre « Téléportation illimitée 5,90 € » créée chez Whop. Vide = bouton « Bientôt disponible ».
+  planIllimite: 'plan_LJoOp4Eu6ImES',
   appUrl: 'https://mock-location-map--9gkk6x9d.preview.emergentagent.com'
 };

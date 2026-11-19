@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Flexloc – Paiement</title>
+  <script src="config.js"></script>
   <style>
     :root { --noir: #000; --blanc: #fff; --texte: #1a1a1f; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,6 +42,7 @@
         'annuel-promo': 'plan_bDttClAnGqFe4',    'annuel-base': 'plan_fknTbKiPlD7vs',
         'pack': 'plan_itUEtYdVwjh27'
       };
+      var cfgIl = (window.FLEXLOC_SUPABASE || {}).planIllimite; if (cfgIl) PLANS.illimite = cfgIl;
       var items = location.hash.slice(1).split('+').filter(function (k) { return PLANS[k]; });
       if (!items.length) { location.replace('offre.html'); return; }
 

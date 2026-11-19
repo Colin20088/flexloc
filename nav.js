@@ -23,7 +23,7 @@
         'nav .nav-links.connecte li { display: list-item !important; white-space: nowrap; }' +
         'nav .nav-links.connecte a.lien-espace { color: #fff; font-weight: 600; font-size: .78rem; padding: 7px 6px; border-radius: 999px; }' +
         'nav .nav-links.connecte button.nav-cta { border: 0; font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; background: #fff; color: #000; padding: 7px 11px; border-radius: 999px; white-space: nowrap; }' +
-        '@media (max-width: 640px) { nav .logo { font-size: 1.15rem; gap: 8px; } nav .logo svg { width: 34px; height: 34px; } nav .nav-inner { padding: 0 14px; } }' +
+        '@media (max-width: 640px) { nav .logo { font-size: 1.15rem; gap: 8px; } nav .logo svg { width: 34px; height: 34px; } nav .nav-inner { padding: 0 14px; gap: 10px; } }' +
         '@media (min-width: 641px) { nav .nav-links.connecte { gap: 16px; } nav .nav-links.connecte a.lien-espace, nav .nav-links.connecte button.nav-cta { font-size: .95rem; } nav .nav-links.connecte button.nav-cta { padding: 8px 18px; } }';
       document.head.appendChild(css);
     }

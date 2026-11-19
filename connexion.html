@@ -102,7 +102,7 @@
           <path d="M20 30C14.3 23.5 12.5 19.6 12.5 15.2a7.5 7.5 0 0 1 15 0c0 4.4-1.8 8.3-7.5 14.8z" fill="#000" stroke="#fffc00" stroke-width="1.2" stroke-linejoin="round"/>
           <circle cx="20" cy="15.2" r="2.7" fill="#fffc00"/>
         </svg>
-        <span>Flexloc</span>
+        <span>Flexloc<b style="color:#f5ff4f;font:inherit">.io</b></span>
       </a>
       <ul class="nav-links">
         <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
@@ -140,6 +140,13 @@
       var libelle = document.getElementById('libelle'), bascule = document.getElementById('bascule'), basculeTxt = document.getElementById('bascule-txt');
       var google = document.getElementById('google');
       var creation = false;
+
+      // Déjà connecté (session mémorisée) : inutile de se reconnecter, on passe directement aux offres
+      function dejaConnecte() {
+        if (!window.flexlocAuth || !window.flexlocAuth.configure) return;
+        window.flexlocAuth.email().then(function (mail) { if (mail) location.replace('offre.html'); });
+      }
+      if (document.readyState === 'complete') dejaConnecte(); else window.addEventListener('load', dejaConnecte);
 
       function afficher(texte, type) {
         msg.hidden = !texte; msg.textContent = texte || ''; msg.className = 'message' + (type ? ' ' + type : '');
@@ -192,5 +199,6 @@
   <script src="auth.js"></script>
   <script src="places.js"></script>
   <script src="nav.js"></script>
+  <script src="abonne.js"></script>
 </body>
 </html>
