@@ -75,6 +75,7 @@
     .lieu[hidden] { display: none; }
     /* photo collée au-dessus de la case d'une ville (Monaco, New York) : un seul cadre */
     .cellule-photo { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e3e3e8; border-radius: 20px; background: var(--blanc); box-shadow: 0 4px 24px rgba(0,0,0,.06); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+    .cellule-photo, .photo-ville, .photo-ville img { -webkit-tap-highlight-color: transparent; cursor: pointer; }
     .cellule-photo:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
     .photo-ville { width: 100%; aspect-ratio: 1 / 1; margin: 0; border-radius: 0; overflow: hidden; background: #0e1626; }
     .cellule-photo .lieu { border: 0; border-radius: 0; box-shadow: none; transform: none; }
@@ -252,7 +253,18 @@
       }
       window.addEventListener("load", mesurerSousTextes); window.addEventListener("resize", mesurerSousTextes);
       var photos = Array.prototype.slice.call(document.querySelectorAll('.photo-ville'));
-      photos.forEach(function (ph) { ph.addEventListener('click', function () { var c = ph.parentNode.querySelector('.lieu'); if (c) c.click(); }); });
+      // Toute la photo ouvre la ville (listener sur le cadre entier + navigation directe : fiable sur iPhone/Android)
+      Array.prototype.forEach.call(document.querySelectorAll('.cellule-photo'), function (cadre) {
+        var carte = cadre.querySelector('.lieu'); if (!carte) return;
+        function ouvrir() {
+          var nom = carte.querySelector('strong').textContent;
+          try { sessionStorage.setItem('ville', nom); } catch (e) {}
+          location.href = 'destination.html#' + encodeURIComponent(nom);
+        }
+        cadre.addEventListener('click', function (e) { if (carte.contains(e.target)) return; ouvrir(); });
+        var fig = cadre.querySelector('.photo-ville');
+        if (fig) { fig.style.cursor = 'pointer'; fig.addEventListener('click', ouvrir); }
+      });
       function filtrer() {
         var q = norm(champ.value), visibles = 0;
         photos.forEach(function (ph) { ph.hidden = !!q; });
