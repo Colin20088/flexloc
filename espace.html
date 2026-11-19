@@ -83,6 +83,7 @@
     .illimite-bouton { display: block; width: 100%; padding: 16px 20px; border: 0; border-radius: 999px; background: var(--jaune); color: #000; font: inherit; font-weight: 800; font-size: 1.05rem; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 0 0 30px rgba(245,255,79,.38); transition: transform .15s, box-shadow .15s; }
     .illimite-bouton:hover { transform: translateY(-2px); box-shadow: 0 0 44px rgba(245,255,79,.55); }
     .illimite-bouton[aria-disabled="true"] { background: #3a3a42; color: #9a9aa5; box-shadow: none; pointer-events: none; }
+    .illimite-note { margin-top: 10px; font-size: .82rem; color: #9a9aa5; }
     .illimite-plus-tard { display: inline-block; margin-top: 12px; background: none; border: 0; color: #9a9aa5; font: inherit; font-size: .9rem; cursor: pointer; }
     .illimite-plus-tard:hover { color: #fff; text-decoration: underline; }
     @media (prefers-reduced-motion: reduce) { .illimite-carte, .illimite-carte::after, .illimite-infini { animation: none; } }
@@ -146,6 +147,7 @@
         <li>Paiement unique</li>
       </ul>
       <a class="illimite-bouton" id="illimite-bouton" href="paiement.html#illimite">Débloquer mon accès</a>
+      <p class="illimite-note" id="illimite-note">Ta carte enregistrée sera débitée de 5,90 € (paiement unique).</p>
       <button type="button" class="illimite-plus-tard" id="illimite-fermer">Plus tard</button>
     </div>
   </div>
@@ -227,6 +229,27 @@
           if (mensuel && !illimite && utilises >= LIMITE && !dejaVu) {
             var btn = el('illimite-bouton');
             if (!cfg.planIllimite) { btn.setAttribute('aria-disabled', 'true'); btn.removeAttribute('href'); }
+            // Achat en 1 clic avec la carte déjà enregistrée (le client vient de cliquer sur un bouton qui annonce le débit)
+            btn.addEventListener('click', function (ev) {
+              if (btn.getAttribute('aria-disabled') === 'true' || !window.flexlocAuth || !window.flexlocAuth.acheterIllimite) return;
+              ev.preventDefault();
+              var note = el('illimite-note'), ancien = btn.textContent;
+              btn.setAttribute('aria-disabled', 'true'); btn.textContent = 'Paiement en cours…';
+              window.flexlocAuth.acheterIllimite().then(function (res) {
+                var s = res && res.statut;
+                if (s === 'ok' || s === 'deja') {
+                  btn.textContent = 'Accès illimité débloqué ✓'; note.textContent = 'Merci ! Tes déplacements sont maintenant illimités.';
+                  try { localStorage.setItem('flexloc_illimite', '1'); sessionStorage.setItem('flexloc_illimite_vu', '1'); } catch (e) {}
+                  setTimeout(function () { el('illimite').hidden = true; }, 2500);
+                } else if (s === 'action' && res.url) {
+                  location.href = res.url;                     // la banque demande une validation (3-D Secure)
+                } else if (s === 'attente') {
+                  btn.textContent = 'Paiement en cours…'; note.textContent = "Ton paiement est en cours de confirmation : ton accès se débloque dans un instant.";
+                } else {
+                  location.href = 'paiement.html#illimite';    // rien n'a été débité : paiement classique
+                }
+              });
+            });
             el('illimite').hidden = false;
             el('illimite-fermer').addEventListener('click', function () {
               el('illimite').hidden = true;

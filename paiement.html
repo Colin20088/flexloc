@@ -58,9 +58,15 @@
         if (!a || !a.configure) { aller(secoursUrl); return; }
         a.email().then(function (email) {
           if (!email) { location.replace('connexion.html'); return; }
-          a.creerPaiement(cle, suite).then(function (r) {
-            if (r && r.purchase_url) aller(r.purchase_url);
-            else { console.warn('Session de paiement non créée :', r && r.erreur); aller(secoursUrl); }
+          // Abonnement + pack : un seul paiement qui additionne les deux. Si ce n'est pas possible : deux paiements à la suite.
+          var combine = suite === 'pack';
+          a.creerPaiement(cle, combine ? '' : suite, combine).then(function (r) {
+            if (r && r.purchase_url) return aller(r.purchase_url);
+            console.warn('Session de paiement non créée :', r && r.erreur);
+            if (!combine) return aller(secoursUrl);
+            a.creerPaiement(cle, suite, false).then(function (r2) {
+              aller((r2 && r2.purchase_url) || secoursUrl);
+            });
           });
         });
       }

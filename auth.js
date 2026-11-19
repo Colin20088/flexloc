@@ -85,7 +85,7 @@
   };
 
   // Demande au serveur de créer une session de paiement Whop pour la formule choisie (ex. "annuel-promo")
-  api.creerPaiement = function (cle, suite) {
+  api.creerPaiement = function (cle, suite, avecPack) {
     return pret.then(function (c) {
       return c.auth.getSession().then(function (r) {
         var session = r.data && r.data.session;
@@ -93,7 +93,7 @@
         return fetch(cfg.url + '/functions/v1/creer-paiement', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: cfg.anonKey },
-          body: JSON.stringify({ cle: cle, suite: suite || '' })
+          body: JSON.stringify({ cle: cle, suite: suite || '', avecPack: !!avecPack })
         }).then(function (rep) {
           return rep.json().catch(function () { return {}; }).then(function (d) {
             if (!rep.ok) return { erreur: d.detail || d.erreur || ('Erreur ' + rep.status) };
@@ -104,6 +104,22 @@
     }).catch(function (e) { return { erreur: (e && e.message) || 'Erreur réseau.' }; });
   };
 
+  // Achat en 1 clic de « Téléportation illimitée » avec la carte déjà enregistrée (voir supabase/6-fonction-acheter-illimite.ts)
+  api.acheterIllimite = function () {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        var session = r.data && r.data.session;
+        if (!session) return { statut: 'echec', detail: 'Connexion requise.' };
+        return fetch(cfg.url + '/functions/v1/acheter-illimite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: cfg.anonKey },
+          body: '{}'
+        }).then(function (rep) {
+          return rep.json().catch(function () { return {}; }).then(function (d) { return d && d.statut ? d : { statut: 'echec', detail: 'Erreur ' + rep.status }; });
+        });
+      });
+    }).catch(function (e) { return { statut: 'echec', detail: (e && e.message) || 'Erreur réseau.' }; });
+  };
   // E-mail du compte connecté (null si personne n'est connecté)
   api.email = function () {
     return pret.then(function (c) { return c.auth.getSession(); })

@@ -10,15 +10,14 @@
 
     if (!document.getElementById('style-abonne')) {
       var s = document.createElement('style'); s.id = 'style-abonne';
-      s.textContent = '.abonne .places, .abonne .globe-cta { display: none !important; }';
+      s.textContent = '.abonne .places { display: none !important; }';
       document.head.appendChild(s);
     }
 
-    // Tous les boutons qui menaient au choix d'une destination / d'une formule mènent à « Mon espace »
+    // Les boutons gardent leur texte, mais mènent à « Mon espace » (où l'on voit son abonnement) au lieu de la page des offres
     Array.prototype.forEach.call(document.querySelectorAll('a.btn[href="teleportation.html"], a.btn[href="offre.html"]'), function (a) {
       if (a.closest('.suite') || a.closest('.secours') || a.closest('.formule')) return;
       a.setAttribute('href', 'espace.html');
-      a.textContent = 'Mon espace';
     });
   }
 
