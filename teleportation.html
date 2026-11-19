@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Flexloc.io">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#e11d2a" media="(max-width: 640px)">
   <title>Flexloc – Où veux-tu aller ?</title>
   <style>
@@ -67,6 +73,27 @@
     .lieu small { color: #888; font-size: .9rem; }
 
     .lieu[hidden] { display: none; }
+    /* photo collée au-dessus de la case d'une ville (Monaco, New York) : un seul cadre */
+    .cellule-photo { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #e3e3e8; border-radius: 20px; background: var(--blanc); box-shadow: 0 4px 24px rgba(0,0,0,.06); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+    .cellule-photo:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+    .photo-ville { width: 100%; aspect-ratio: 1 / 1; margin: 0; border-radius: 0; overflow: hidden; background: #0e1626; }
+    .cellule-photo .lieu { border: 0; border-radius: 0; box-shadow: none; transform: none; }
+    .cellule-photo .lieu:hover { transform: none; box-shadow: none; }
+    .photo-ville.photo-ny img { object-position: 50% 62%; }
+    .photo-ville.photo-dxb img { object-position: 50% 38%; }
+    .photo-ville.photo-caire img { object-position: 50% 45%; }
+    .photo-ville.photo-syd img { object-position: 50% 43%; }
+    .lieu > div { min-width: 0; overflow: hidden; }
+    .lieu small { display: block; white-space: nowrap; }
+    .lieu small > span { display: inline-block; }
+    .lieu small.defile > span { animation: defile-sous-texte 6s ease-in-out infinite alternate; }
+    @keyframes defile-sous-texte { 0%, 20% { transform: translateX(0); } 80%, 100% { transform: translateX(var(--d)); } }
+    .photo-ville.photo-bcn img { object-position: 50% 33%; }
+    .photo-ville.photo-rio img { object-position: 50% 45%; }
+    .photo-ville.photo-myk img { object-position: 50% 50%; }
+    .photo-ville img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 47%; }
+    .lieux { align-items: end; }
+    .photo-ville[hidden] { display: none; }
     .aucun { margin-top: 32px; color: #888; }
     .aucun[hidden] { display: none; }
 
@@ -120,48 +147,89 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input type="search" list="destinations" placeholder="Rechercher une destination…" aria-label="Rechercher une destination" autofocus>
       <datalist id="destinations">
-        <option value="Dubaï"><option value="Miami"><option value="Marbella"><option value="Monaco">
+        <option value="Dubaï"><option value="New York"><option value="Barcelone"><option value="Monaco">
         <option value="Sydney"><option value="Rio">
         <option value="Mykonos"><option value="Le Caire">
       </datalist>
     </form>
 
     <div class="lieux">
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-dxb">
+          <img src="img/dubai-snap.webp" alt="Dubaï, Downtown Burj Khalifa, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/ae.svg" alt="Drapeau des Émirats arabes unis">
-        <div><strong>Dubaï</strong><small>Downtown Burj Khalifa</small></div>
+        <div><strong>Dubaï</strong><small><span>Downtown Burj Khalifa</span></small></div>
+        </div>
       </div>
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-ny">
+          <img src="img/newyork-snap.webp" alt="New York, Lower Manhattan, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/us.svg" alt="Drapeau des États-Unis">
-        <div><strong>Miami</strong><small>South Beach</small></div>
+        <div><strong>New York</strong><small><span>Lower Manhattan</span></small></div>
       </div>
-      <div class="lieu">
+      </div>
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-bcn">
+          <img src="img/barcelone-snap.webp" alt="Barcelone, Rambla, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/es.svg" alt="Drapeau de l'Espagne">
-        <div><strong>Marbella</strong><small>Puerto Banús</small></div>
+        <div><strong>Barcelone</strong><small><span>Rambla</span></small></div>
+        </div>
       </div>
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville">
+          <img src="img/monaco-snap.webp" alt="Monaco, La Condamine, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/mc.svg" alt="Drapeau de Monaco">
-        <div><strong>Monaco</strong><small>La Condamine</small></div>
+        <div><strong>Monaco</strong><small><span>La Condamine</span></small></div>
       </div>
-      <div class="lieu">
+      </div>
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-syd">
+          <img src="img/sydney-snap.webp" alt="Sydney, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/au.svg" alt="Drapeau de l'Australie">
-        <div><strong>Sydney</strong><small>North Sydney</small></div>
+        <div><strong>Sydney</strong><small><span>North Sydney</span></small></div>
+        </div>
       </div>
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-rio">
+          <img src="img/rio-snap.webp" alt="Rio de Janeiro, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/br.svg" alt="Drapeau du Brésil">
-        <div><strong>Rio</strong><small>Centro Copacabana</small></div>
+        <div><strong>Rio</strong><small><span>Centro Copacabana</span></small></div>
+        </div>
       </div>
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-myk">
+          <img src="img/mykonos-snap.webp" alt="Mykonos, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/gr.svg" alt="Drapeau de la Grèce">
-        <div><strong>Mykonos</strong><small>Psarou Beach</small></div>
+        <div><strong>Mykonos</strong><small><span>Psarou Beach</span></small></div>
+        </div>
       </div>
-      <div class="lieu">
+      <div class="cellule-photo">
+        <figure class="photo-ville photo-caire">
+          <img src="img/caire-snap.webp" alt="Le Caire, vu sur la carte de Snapchat" width="640" height="640" loading="lazy">
+        </figure>
+        <div class="lieu">
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/eg.svg" alt="Drapeau de l'Égypte">
-        <div><strong>Le Caire</strong><small>Zamalek</small></div>
+        <div><strong>Le Caire</strong><small><span>Zamalek</span></small></div>
+        </div>
       </div>
       <div class="lieu" data-cache hidden>
         <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/1x1/fr.svg" alt="Drapeau de la France">
-        <div><strong>Paris</strong><small>Place Vendôme</small></div>
+        <div><strong>Paris</strong><small><span>Place Vendôme</span></small></div>
       </div>
     </div>
     <p class="aucun" id="aucun" hidden>Aucune destination trouvée.</p>
@@ -175,8 +243,19 @@
       function norm(s) {
         return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
       }
+      function mesurerSousTextes() {
+        Array.prototype.forEach.call(document.querySelectorAll(".lieu small"), function (s) {
+          var sp = s.firstElementChild; if (!sp) return;
+          var d = sp.offsetWidth - s.clientWidth;
+          if (d > 1) { s.classList.add("defile"); s.style.setProperty("--d", (-d - 2) + "px"); } else { s.classList.remove("defile"); }
+        });
+      }
+      window.addEventListener("load", mesurerSousTextes); window.addEventListener("resize", mesurerSousTextes);
+      var photos = Array.prototype.slice.call(document.querySelectorAll('.photo-ville'));
+      photos.forEach(function (ph) { ph.addEventListener('click', function () { var c = ph.parentNode.querySelector('.lieu'); if (c) c.click(); }); });
       function filtrer() {
         var q = norm(champ.value), visibles = 0;
+        photos.forEach(function (ph) { ph.hidden = !!q; });
         cartes.forEach(function (c) {
           var ok = q ? norm(c.textContent).indexOf(q) !== -1 : !c.hasAttribute('data-cache');
           c.hidden = !ok;
@@ -184,6 +263,8 @@
           if (ok) visibles++;
         });
         aucun.hidden = visibles !== 0;
+        // Chaque cadre « photo + ville » disparaît en entier quand sa ville ne correspond pas à la recherche
+        Array.prototype.forEach.call(document.querySelectorAll('.cellule-photo'), function (cadre) { var carte = cadre.querySelector('.lieu'); cadre.style.display = carte && carte.style.display === 'none' ? 'none' : ''; });
       }
       cartes.forEach(function (c) {
         function aller() {
