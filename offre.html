@@ -222,8 +222,8 @@
       html { background-color: #e11d2a; }
       body { background-color: #fff; }
       /* iOS récent : la couleur du haut vient de la barre fixe -> on la rend opaque (rouge) */
-      nav { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
-      nav .nav-inner { background: #1c1c1e; }
+      nav:not(.footer-liens) { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      nav:not(.footer-liens) .nav-inner { background: #1c1c1e; }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
   </style>
@@ -506,7 +506,26 @@
       var cartes = avis.map(function (a) {
         return '<div class="avis-card"><div class="etoiles" aria-label="5 étoiles sur 5">★★★★★</div><p>« ' + a[1] + ' »</p><div class="auteur"><strong>' + a[0] + '</strong><span class="verifie"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Client satisfait</span></div></div>';
       }).join('');
-      document.getElementById('avis').innerHTML = cartes + cartes;
+      var piste = document.getElementById('avis');
+      piste.innerHTML = cartes + cartes;
+      // Défilement piloté par JavaScript : fonctionne même si l'animation CSS est coupée
+      // (mode économie d'énergie, « Réduire les animations » de l'iPhone…)
+      piste.style.animation = 'none';
+      var x = 0, dernier = null, enPause = false;
+      piste.parentNode.addEventListener('mouseenter', function () { enPause = true; });
+      piste.parentNode.addEventListener('mouseleave', function () { enPause = false; });
+      function pas() {
+        var t = performance.now();
+        if (dernier === null) dernier = t;
+        var dt = Math.min(t - dernier, 100); dernier = t;
+        if (!enPause) {
+          var moitie = piste.scrollWidth / 2;
+          x -= dt * 0.04;                       // ≈ 40 px par seconde
+          if (moitie > 0 && x <= -moitie) x += moitie;
+          piste.style.transform = 'translate3d(' + x + 'px,0,0)';
+        }
+      }
+      setInterval(pas, 16);
     })();
 
     // « Reprends là où tu en étais » : les trois abonnements proposés de nouveau, synchronisés avec ceux du haut
