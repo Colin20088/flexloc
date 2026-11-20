@@ -314,7 +314,10 @@
     /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
     @media (max-width: 640px) {
       html { background-color: #e11d2a; }
-      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      body { background-color: #fff; }
+      /* iOS récent : la couleur du haut vient de la barre fixe -> on la rend opaque (rouge) */
+      nav { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      nav .nav-inner { background: #1c1c1e; }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
   </style>

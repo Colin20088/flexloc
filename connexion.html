@@ -91,7 +91,10 @@
     /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
     @media (max-width: 640px) {
       html { background-color: #e11d2a; }
-      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      body { background-color: #fff; }
+      /* iOS récent : la couleur du haut vient de la barre fixe -> on la rend opaque (rouge) */
+      nav { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      nav .nav-inner { background: #1c1c1e; }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
   </style>
@@ -111,7 +114,7 @@
         <span>Flexloc<b style="color:#f5ff4f;font:inherit">.io</b></span>
       </a>
       <ul class="nav-links">
-        <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
+        <li><a href="connexion.html#connexion" class="nav-cta">Connexion</a></li>
       </ul>
     </div>
   </nav>
@@ -121,9 +124,9 @@
 
     <form id="form" novalidate>
       <input type="email" name="email" placeholder="marcel@gmail.com" autocomplete="email" aria-label="Adresse e-mail" required>
-      <input type="password" name="mdp" placeholder="Mot de passe" autocomplete="current-password" aria-label="Mot de passe" required>
+      <input type="password" name="mdp" placeholder="Mot de passe" autocomplete="new-password" aria-label="Mot de passe" required>
       <button type="submit">
-        <span id="libelle">Continuer</span>
+        <span id="libelle">Créer mon compte</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
       <p class="message" id="message" role="alert" hidden></p>
@@ -137,7 +140,7 @@
       </button>
     </div>
 
-    <p class="bascule"><span id="bascule-txt">Pas encore de compte ?</span> <button type="button" class="lien" id="bascule">Créer un compte</button></p>
+    <p class="bascule"><span id="bascule-txt">Déjà un compte ?</span> <button type="button" class="lien" id="bascule">Se connecter</button></p>
   </main>
 
   <script>
@@ -145,7 +148,7 @@
       var form = document.getElementById('form'), msg = document.getElementById('message');
       var libelle = document.getElementById('libelle'), bascule = document.getElementById('bascule'), basculeTxt = document.getElementById('bascule-txt');
       var google = document.getElementById('google');
-      var creation = false;
+      var creation = true; // par défaut : création de compte (nouveaux visiteurs)
 
       // Déjà connecté (session mémorisée) : inutile de se reconnecter, on passe directement aux offres
       function dejaConnecte() {
@@ -166,14 +169,16 @@
         return false;
       }
 
-      bascule.addEventListener('click', function () {
-        creation = !creation;
+      function majMode() {
         libelle.textContent = creation ? 'Créer mon compte' : 'Continuer';
         basculeTxt.textContent = creation ? 'Déjà un compte ?' : 'Pas encore de compte ?';
         bascule.textContent = creation ? 'Se connecter' : 'Créer un compte';
         form.mdp.autocomplete = creation ? 'new-password' : 'current-password';
         afficher('');
-      });
+      }
+      bascule.addEventListener('click', function () { creation = !creation; majMode(); });
+      // Lien « Connexion » de la barre (#connexion) : on ouvre directement la connexion
+      if (location.hash === '#connexion') { creation = false; majMode(); }
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();

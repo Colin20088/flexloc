@@ -132,6 +132,10 @@
     .formule:has(input:checked) { border-color: var(--noir); box-shadow: 0 0 0 2px var(--noir), 0 14px 24px -10px rgba(0,0,0,.28); }    .pack h3 { font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; letter-spacing: -.02em; font-size: 1.3rem; line-height: 1.2; }
     .reco { background: var(--jaune); color: #1a1a1f; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
     .pack .prix { margin: 6px 0 14px; font-family: "Inter Tight", system-ui, sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -.03em; line-height: 1.1; }
+    .pack-ligne { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .pack-ligne .prix { margin: 6px 0 14px; white-space: nowrap; }
+    .pack-photo { display: block; width: 138px; height: auto; flex: none; margin: 0 0 4px; }
+    @media (max-width: 600px) { .pack-photo { width: 108px; } }
     .pack-texte { color: #555; font-size: .98rem; line-height: 1.5; }
     .debloque { margin-top: 56px; }
     .debloque-sous { max-width: 520px; margin: -8px auto 18px; color: #666; font-size: 1rem; }
@@ -216,7 +220,10 @@
     /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
     @media (max-width: 640px) {
       html { background-color: #e11d2a; }
-      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      body { background-color: #fff; }
+      /* iOS récent : la couleur du haut vient de la barre fixe -> on la rend opaque (rouge) */
+      nav { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      nav .nav-inner { background: #1c1c1e; }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
   </style>
@@ -236,7 +243,7 @@
         <span>Flexloc<b style="color:#f5ff4f;font:inherit">.io</b></span>
       </a>
       <ul class="nav-links">
-        <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
+        <li><a href="connexion.html#connexion" class="nav-cta">Connexion</a></li>
       </ul>
     </div>
   </nav>
@@ -310,7 +317,10 @@
             </label>
             <span class="reco">Recommandé</span>
           </div>
-          <p class="prix">15,90 €</p>
+          <div class="pack-ligne">
+            <p class="prix">15,90 €</p>
+            <img class="pack-photo" src="bateau-snap.png" alt="Ton avatar en bateau sur la carte, « Moi maintenant »" width="639" height="535" loading="lazy">
+          </div>
           <p class="pack-texte">Pour que personne ne se doute de rien : tes trajets ont l'air 100 % vrais (avion près d'un aéroport, bateau en mer, voiture, train près d'une gare…). Plus la carte des 50 meilleurs spots – hôtels de luxe, aéroport, restos, monuments.</p>
         </div>
         <p class="pack-bas">La plupart l'ajoute : c'est la différence entre une position posée et un vrai déplacement</p>

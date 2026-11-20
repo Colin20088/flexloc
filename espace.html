@@ -58,7 +58,10 @@
     /* Téléphone : le bandeau rouge remonte jusque sous la barre d'état (zone du haut de l'écran) */
     @media (max-width: 640px) {
       html { background-color: #e11d2a; }
-      body { background-color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+      body { background-color: #fff; }
+      /* iOS récent : la couleur du haut vient de la barre fixe -> on la rend opaque (rouge) */
+      nav { background: #e11d2a !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+      nav .nav-inner { background: #1c1c1e; }
       .alerte { box-sizing: border-box; height: calc(32px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); line-height: 32px; }
     }
     /* Offre « Téléportation illimitée » */
@@ -114,7 +117,7 @@
         <span>Flexloc<b style="color:#f5ff4f;font:inherit">.io</b></span>
       </a>
       <ul class="nav-links">
-        <li><a href="connexion.html" class="nav-cta">Connexion</a></li>
+        <li><a href="connexion.html#connexion" class="nav-cta">Connexion</a></li>
       </ul>
     </div>
   </nav>
@@ -233,7 +236,7 @@
         if (!auth || !auth.configure) { el('chargement').hidden = true; el('erreur').hidden = false; el('erreur').textContent = "La connexion n'est pas configurée."; return; }
         auth.espace().then(function (r) {
           el('chargement').hidden = true;
-          if (!r.connecte) { location.href = 'connexion.html'; return; }
+          if (!r.connecte) { location.href = 'connexion.html#connexion'; return; }
           el('email').textContent = r.email;
           if (r.erreur) { el('erreur').hidden = false; el('erreur').textContent = 'Impossible de charger tes abonnements : ' + r.erreur; return; }
           var liste = el('liste');
