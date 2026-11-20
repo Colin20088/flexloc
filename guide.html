@@ -98,6 +98,7 @@
           <div class="num" id="num"></div>
           <small>ÉTAPE <span id="etape-n"></span></small>
           <h2 id="titre"></h2>
+          <a class="btn" id="ouvrir-app" href="#" target="_blank" rel="noopener" hidden style="margin:0 0 16px">Ouvrir l'application</a>
           <p id="texte"></p>
           <div class="attention" id="attention" hidden></div>
         </section>
@@ -115,7 +116,7 @@
     (function () {
       // Étapes du guide (reprises de l'app)
       var ETAPES = [
-        { titre: "Ajoute Flexloc à ton écran d'accueil", texte: "Pour retrouver Flexloc en un geste, comme une app :\n\niPhone (avec Safari) :\n1. Ouvre Flexloc dans Safari.\n2. Touche le bouton Partager (le carré avec une flèche vers le haut, en bas de l'écran ; parfois derrière les trois points « … »).\n3. Fais défiler et touche « Sur l'écran d'accueil ».\n4. Touche « Ajouter » en haut à droite.\n\nAndroid (avec Chrome) :\n1. Ouvre Flexloc dans Chrome.\n2. Touche les trois points « ⋮ » en haut à droite.\n3. Touche « Ajouter à l'écran d'accueil » (ou « Installer l'application »).\n4. Confirme avec « Ajouter ».\n\nL'icône Flexloc apparaît alors sur ton écran d'accueil." }
+        { titre: "Installe l'application Flexloc", texte: "C'est avec l'application Flexloc que tu changes ta position. Installe-la en 30 secondes :\n\n1. Touche « Ouvrir l'application » ci-dessus.\n\niPhone (avec Safari) :\n2. Touche le bouton Partager (le carré avec une flèche vers le haut, en bas de l'écran ; parfois derrière les trois points « … »).\n3. Fais défiler et touche « Sur l'écran d'accueil », puis « Ajouter » en haut à droite.\n\nAndroid (avec Chrome) :\n2. Touche les trois points « ⋮ » en haut à droite.\n3. Touche « Ajouter à l'écran d'accueil » (ou « Installer l'application »), puis confirme avec « Ajouter ».\n\nL'icône apparaît sur ton écran d'accueil : ouvre-la pour choisir ta ville et te téléporter." }
       ];
 
       var el = function (id) { return document.getElementById(id); };
@@ -162,6 +163,9 @@
           el('chargement').hidden = true;
           if (!r.connecte) { location.replace('connexion.html#connexion'); return; }
           if (r.erreur || !(r.abonnements || []).some(actif)) { el('refus').hidden = false; return; }
+          // Lien vers l'application (adresse définie dans config.js)
+          var cfg = window.FLEXLOC_SUPABASE || {};
+          if (cfg.appUrl) { el('ouvrir-app').href = cfg.appUrl; el('ouvrir-app').hidden = false; }
           afficher();
           el('guide').hidden = false;
         });

@@ -66,6 +66,8 @@
     }
     /* Offre « Téléportation illimitée » */
     .illimite-fond { position: fixed; inset: 0; z-index: 60; display: flex; overflow-y: auto; padding: 16px; background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+    /* Téléphone : le bandeau rouge du haut reste visible (et la zone de l'heure / batterie reste rouge) */
+    @media (max-width: 640px) { .illimite-fond { top: calc(32px + env(safe-area-inset-top, 0px)); } }
     .illimite-carte {
       position: relative; width: 100%; max-width: 400px; margin: auto; padding: 24px 22px 18px; border-radius: 30px; text-align: center; color: #fff; overflow: hidden;
       background: radial-gradient(circle at 85% -10%, rgba(245,255,79,.30), transparent 55%), linear-gradient(160deg, #1b1b22 0%, #000 70%);
@@ -93,6 +95,7 @@
     .illimite-bouton:hover { transform: translateY(-2px); box-shadow: 0 0 44px rgba(245,255,79,.55); }
     .illimite-bouton[aria-disabled="true"] { background: #3a3a42; color: #9a9aa5; box-shadow: none; pointer-events: none; }
     .illimite-note { margin-top: 10px; font-size: .82rem; color: #9a9aa5; }
+    .illimite-note:empty { display: none; }
     .illimite-plus-tard { display: inline-block; margin-top: 12px; background: none; border: 0; color: #9a9aa5; font: inherit; font-size: .9rem; cursor: pointer; }
     .illimite-plus-tard:hover { color: #fff; text-decoration: underline; }
     .indet-badge { display: inline-block; margin-bottom: 8px; padding: 4px 12px; border-radius: 999px; background: rgba(245,255,79,.14); color: var(--jaune); font-size: .74rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
@@ -100,6 +103,19 @@
     .indet-carte ul { max-width: 310px; }
     .illimite-prix small { white-space: nowrap; }
     .illimite-plus-tard.indet-fermer { color: #8a8a94; opacity: .8; font-size: .82rem; }
+    /* Petits téléphones : on resserre la carte pour que « Fermer » reste toujours visible */
+    @media (max-height: 700px) {
+      .illimite-fond { padding: 10px; }
+      .illimite-carte { padding: 16px 18px 12px; border-radius: 26px; }
+      .indet-badge { margin-bottom: 4px; }
+      .illimite-carte h2 { font-size: 1.55rem; margin: 6px 0 2px; }
+      .illimite-sous { font-size: .86rem; margin-bottom: 6px; }
+      .illimite-prix { font-size: 2.3rem; }
+      .illimite-carte ul { margin: 8px auto 10px; gap: 6px; }
+      .illimite-carte li { font-size: .86rem; }
+      .illimite-bouton { padding: 13px 18px; font-size: 1rem; }
+      .illimite-plus-tard { margin-top: 8px; }
+    }
     @media (prefers-reduced-motion: reduce) { .illimite-carte, .illimite-carte::after, .illimite-infini { animation: none; } }
   </style>
 </head>
@@ -174,10 +190,10 @@
       <p class="illimite-prix">15,90 €<small>/ mois</small></p>
       <ul>
         <li>Des photos générées par IA en fonction de la ville que tu as choisie, pour être indétectable</li>
-        <li>La technique du snap rouge, pour l&#39;être vraiment</li>
+        <li>La technique du snap rouge, pour l&#39;être vraiment (tes potes recevront tes photos en snap rouge)</li>
       </ul>
       <button type="button" class="illimite-bouton" id="indet-bouton">Devenir indétectable</button>
-      <p class="illimite-note" id="indet-note">En appuyant, ta carte enregistrée est débitée automatiquement de 15,90 € par mois.</p>
+      <p class="illimite-note" id="indet-note" aria-live="polite"></p>
       <button type="button" class="illimite-plus-tard indet-fermer" id="indet-fermer">Fermer</button>
     </div>
   </div>

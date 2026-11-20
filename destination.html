@@ -187,7 +187,9 @@
       spanTitre.appendChild(document.createTextNode(' ' + ville.nom));
       var bouton = document.getElementById('activer');
       bouton.textContent = 'Activer ' + ville.nom;
-      bouton.href = 'chargement.html#' + encodeURIComponent(ville.nom);
+      // Abonné : le parcours s'arrête ici (étape 2) et mène au guide d'installation de l'app, sans repasser par la connexion
+      var abonne = false; try { abonne = localStorage.getItem('flexloc_abonne') === '1'; } catch (e) {}
+      bouton.href = (abonne ? 'guide.html#' : 'chargement.html#') + encodeURIComponent(ville.nom);
       bouton.addEventListener('click', function () { try { sessionStorage.setItem('ville', ville.nom); } catch (e) {} });
 
       var canvas = document.getElementById('carte');

@@ -14,10 +14,11 @@
       document.head.appendChild(s);
     }
 
-    // Les boutons gardent leur texte, mais mènent à « Mon espace » (où l'on voit son abonnement) au lieu de la page des offres
-    Array.prototype.forEach.call(document.querySelectorAll('a.btn[href="teleportation.html"], a.btn[href="offre.html"]'), function (a) {
+    // Les boutons de la page d'accueil mènent au même parcours que la version gratuite (choix de la destination),
+    // jamais à la page des offres : l'abonné n'a pas à se réabonner. Le parcours s'arrête à l'étape 2 (voir destination.html).
+    Array.prototype.forEach.call(document.querySelectorAll('a.btn[href="offre.html"]'), function (a) {
       if (a.closest('.suite') || a.closest('.secours') || a.closest('.formule')) return;
-      a.setAttribute('href', 'espace.html');
+      a.setAttribute('href', 'teleportation.html');
     });
   }
 
