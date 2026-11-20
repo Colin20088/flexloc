@@ -556,6 +556,25 @@
         p.textContent = texte;
       }
 
+      // Pré-enregistre le paiement de la formule cochée (au chargement, puis à chaque changement de choix)
+      var minuteur = null;
+      function preparer() {
+        var A = window.flexlocAuth; if (!A || !A.prepaiement) return;
+        var connecte = false; try { connecte = localStorage.getItem('flexloc_connecte') === '1'; } catch (e) {}
+        if (!connecte) return;
+        var formule = choisie(), pack = document.querySelector('input[name="pack"]'), avecPack = !!(pack && pack.checked);
+        if (!formule && !avecPack) return;
+        var promoFinie = document.body.classList.contains('promo-finie');
+        var cles = [];
+        if (formule) cles.push(formule + (promoFinie ? '-base' : '-promo'));
+        if (avecPack) cles.push('pack');
+        A.prepaiement(cles[0], '', cles.length === 2);
+      }
+      function preparerBientot() { clearTimeout(minuteur); minuteur = setTimeout(preparer, 250); }
+      document.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches('input[name="formule"], input[name="pack"]')) preparerBientot(); });
+      window.addEventListener('load', function () { setTimeout(preparer, 300); });
+      window.addEventListener('flexloc-auth', preparerBientot);
+
       Array.prototype.forEach.call(document.querySelectorAll('.btn-continuer'), function (btn) {
         btn.addEventListener('click', function () {
           var zone = btn.closest('.suite');
@@ -575,9 +594,17 @@
           var cles = [];
           if (formule) cles.push(formule + (promoFinie ? '-base' : '-promo'));
           if (avecPack) cles.push('pack');
-          // On va directement sur la page de paiement Whop (la page paiement crée la session puis redirige)
+          // Session de paiement déjà préparée en arrière-plan : on y va directement. Sinon la page paiement la crée.
           btn.disabled = true; btn.firstChild.nodeValue = 'Redirection vers le paiement… ';
-          location.href = 'paiement.html#' + cles.join('+');
+          var secours = 'paiement.html#' + cles.join('+');
+          var A = window.flexlocAuth;
+          if (!A || !A.prepaiement) { location.href = secours; return; }
+          var combine = cles.length === 2;
+          A.prepaiement(cles[0], '', combine).then(function (url) {
+            if (!url) { location.href = secours; return; }
+            A.oublierPaiement(cles[0], '', combine);
+            location.href = url;
+          });
         });
       });
     })();

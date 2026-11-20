@@ -92,6 +92,11 @@
     .illimite-note { margin-top: 10px; font-size: .82rem; color: #9a9aa5; }
     .illimite-plus-tard { display: inline-block; margin-top: 12px; background: none; border: 0; color: #9a9aa5; font: inherit; font-size: .9rem; cursor: pointer; }
     .illimite-plus-tard:hover { color: #fff; text-decoration: underline; }
+    .indet-badge { display: inline-block; margin-bottom: 8px; padding: 4px 12px; border-radius: 999px; background: rgba(245,255,79,.14); color: var(--jaune); font-size: .74rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .indet-carte .illimite-sous { margin-top: 4px; text-align: left; }
+    .indet-carte ul { max-width: 310px; }
+    .illimite-prix small { white-space: nowrap; }
+    .illimite-plus-tard.indet-fermer { color: #8a8a94; opacity: .8; font-size: .82rem; }
     @media (prefers-reduced-motion: reduce) { .illimite-carte, .illimite-carte::after, .illimite-infini { animation: none; } }
   </style>
 </head>
@@ -158,9 +163,25 @@
     </div>
   </div>
 
+  <div class="illimite-fond" id="indet" hidden role="dialog" aria-modal="true" aria-labelledby="indet-titre">
+    <div class="illimite-carte indet-carte">
+      <span class="indet-badge">Réservé aux abonnés</span>
+      <h2 id="indet-titre">Deviens <span>indétectable</span></h2>
+      <p class="illimite-sous">Cette offre rend ta position vraiment crédible aux yeux de tout le monde.</p>
+      <p class="illimite-prix">15,90 €<small>/ mois</small></p>
+      <ul>
+        <li>Des photos générées par IA en fonction de la ville que tu as choisie, pour être indétectable</li>
+        <li>La technique du snap rouge, pour l&#39;être vraiment</li>
+      </ul>
+      <button type="button" class="illimite-bouton" id="indet-bouton">Devenir indétectable</button>
+      <p class="illimite-note" id="indet-note">En appuyant, ta carte enregistrée est débitée automatiquement de 15,90 € par mois.</p>
+      <button type="button" class="illimite-plus-tard indet-fermer" id="indet-fermer">Fermer</button>
+    </div>
+  </div>
+
   <script>
     (function () {
-      var NOMS = { illimite: 'Téléportation illimitée', mensuel: 'Abonnement mensuel', trimestriel: 'Abonnement tous les 3 mois', annuel: 'Abonnement annuel', pack: 'Pack voyageur', inconnu: 'Abonnement Flexloc' };
+      var NOMS = { illimite: 'Téléportation illimitée', indetectable: 'Offre Indétectable', mensuel: 'Abonnement mensuel', trimestriel: 'Abonnement tous les 3 mois', annuel: 'Abonnement annuel', pack: 'Pack voyageur', inconnu: 'Abonnement Flexloc' };
       var el = function (id) { return document.getElementById(id); };
 
       function date(iso) {
@@ -222,7 +243,7 @@
           // Un abonnement actif donne accès à l'app
           var cfg = window.FLEXLOC_SUPABASE || {};
           var actif = (r.abonnements || []).some(function (a) {
-            return a.offre !== 'pack' && a.offre !== 'illimite' && (a.status === 'active' || a.status === 'trialing' || (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
+            return a.offre !== 'pack' && a.offre !== 'illimite' && a.offre !== 'indetectable' && (a.status === 'active' || a.status === 'trialing' || (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
           });
           if (actif && cfg.appUrl) { el('app-lien').href = cfg.appUrl; el('app-bloc').hidden = false; }
 
@@ -262,7 +283,38 @@
               try { sessionStorage.setItem('flexloc_illimite_vu', '1'); } catch (e) {}
             });
           }
-          // Juste après un paiement, Whop met quelques secondes à nous prévenir : on réessaie
+          // Offre « Indétectable » : réservée aux abonnés, affichée à chaque connexion et juste après un achat d'abonnement
+          var indetPossedee = (r.abonnements || []).some(function (a) { return a.offre === 'indetectable' && (a.status === 'active' || a.status === 'trialing'); });
+          var indetVu = false; try { indetVu = sessionStorage.getItem('flexloc_indet_vu') === '1'; } catch (e) {}
+          if (actif && !indetPossedee && el('illimite').hidden && (!indetVu || apresPaiement)) {
+            var fond = el('indet'), bt = el('indet-bouton'), nt = el('indet-note');
+            function fermerIndet() { fond.hidden = true; document.body.style.overflow = ''; try { sessionStorage.setItem('flexloc_indet_vu', '1'); } catch (e) {} }
+            if (!cfg.planIndetectable) { bt.setAttribute('aria-disabled', 'true'); bt.textContent = 'Bientôt disponible'; nt.textContent = "Cette offre arrive très vite."; }
+            if (!bt.dataset.pret) {
+              bt.dataset.pret = '1';
+              bt.addEventListener('click', function () {
+                if (bt.getAttribute('aria-disabled') === 'true' || !window.flexlocAuth || !window.flexlocAuth.acheterIndetectable) return;
+                bt.setAttribute('aria-disabled', 'true'); bt.textContent = 'Paiement en cours…';
+                window.flexlocAuth.acheterIndetectable().then(function (res) {
+                  var s = res && res.statut;
+                  if (s === 'ok' || s === 'deja') {
+                    bt.textContent = 'Tu es indétectable ✓'; nt.textContent = 'Merci ! Ton offre est activée.';
+                    setTimeout(fermerIndet, 2500);
+                  } else if (s === 'action' && res.url) {
+                    location.href = res.url;                     // la banque demande une validation (3-D Secure)
+                  } else if (s === 'attente') {
+                    bt.textContent = 'Paiement en cours…'; nt.textContent = "Ton paiement est en cours de confirmation : l'offre s'active dans un instant.";
+                  } else {
+                    bt.removeAttribute('aria-disabled'); bt.textContent = 'Devenir indétectable';
+                    nt.textContent = "Le paiement n'a pas abouti, rien n'a été débité. Réessaie dans un instant.";
+                  }
+                });
+              });
+              el('indet-fermer').addEventListener('click', fermerIndet);
+              fond.addEventListener('click', function (e) { if (e.target === fond) fermerIndet(); });
+            }
+            fond.hidden = false; document.body.style.overflow = 'hidden';
+          }          // Juste après un paiement, Whop met quelques secondes à nous prévenir : on réessaie
           if (aucun && apresPaiement && essais < 15) {
             essais++;
             el('chargement').hidden = false;

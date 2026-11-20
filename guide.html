@@ -149,7 +149,7 @@
 
       // Réservé aux abonnés : on vérifie le compte connecté et son abonnement
       function actif(a) {
-        return a.offre !== 'pack' && a.offre !== 'illimite' && (a.status === 'active' || a.status === 'trialing' ||
+        return a.offre !== 'pack' && a.offre !== 'illimite' && a.offre !== 'indetectable' && (a.status === 'active' || a.status === 'trialing' ||
           (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
       }
       function demarrer() {

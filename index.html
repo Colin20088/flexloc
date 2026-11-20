@@ -113,7 +113,7 @@
     .btn.ghost { background: transparent; color: var(--noir); border: 2px solid var(--noir); margin-left: 10px; }
 
     /* Avis qui défilent */
-    .avis { padding: 0 0 70px; background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%) no-repeat; margin-top: -1px; overflow: hidden; }
+    .avis { padding: 0 0 20px; background: radial-gradient(circle at 50% 0%, #ece9ff 0%, #fff 65%) no-repeat; margin-top: -1px; overflow: hidden; }
     .avis-track { display: flex; gap: 20px; width: max-content; padding: 10px 0; animation: defile 45s linear infinite; }
     .avis:hover .avis-track { animation-play-state: paused; }
     .avis-titre { text-align: center; padding: 0 20px 24px; }
@@ -138,6 +138,22 @@
       box-shadow: 0 12px 40px rgba(0,0,0,.2);
     }
     .preuve-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 53%; }
+    /* cadres côte à côte : Dubaï + Miami (position système), Singapour + Dubaï (sur ta map) */
+    .preuve-duo { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 1100px; margin: 0 auto; }
+    .preuve-duo .preuve-photo { margin: 0; width: auto; flex: 1 1 0; min-width: 0; max-width: 260px; }
+    .point-bleu.point-rouge { background: #ff2d3a; }
+    .preuve-photo.photo-mia img { object-position: 50% 0%; }
+    .preuve-photo.photo-sg img { object-position: 50% 45%; }
+    .preuve-photo.photo-dxb2 img { object-position: 50% 45%; }
+    @media (max-width: 640px) {
+      .preuve-duo { gap: 10px; }
+      .preuve-duo .preuve-photo { flex: 0 0 calc(50% - 5px); max-width: none; border-radius: 24px; }
+      .preuve-duo .preuve-haut { top: 10px; left: 10px; font-size: .62rem; padding: 3px 8px; gap: 5px; }
+      .preuve-duo .point-bleu { width: 8px; height: 8px; }
+      .preuve-duo .preuve-bas { bottom: 10px; font-size: .68rem; padding: 3px 8px 3px 6px; }
+      .preuve-duo .preuve-bas svg { width: 11px; height: 11px; }
+    }
+
     .preuve-haut {
       position: absolute; top: 16px; left: 16px; white-space: nowrap;
       display: inline-flex; align-items: center; gap: 7px;
@@ -145,6 +161,7 @@
       padding: 4px 11px; border-radius: 999px; box-shadow: 0 3px 12px rgba(0,0,0,.25);
     }
     .point-bleu { width: 11px; height: 11px; border-radius: 50%; background: #1e90ff; box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(0,0,0,.15); flex-shrink: 0; }
+    .point-bleu.point-rouge { background: #ff2d3a; }
     .preuve-bas {
       position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
       display: inline-flex; align-items: center; gap: 5px;
@@ -152,6 +169,20 @@
       padding: 4px 11px 4px 8px; border-radius: 999px; box-shadow: 0 3px 12px rgba(0,0,0,.3);
     }
     .preuve-bas svg { flex-shrink: 0; width: 13px; height: 13px; }
+    @media (max-width: 640px) {
+      .preuve-duo .preuve-haut { top: 10px; left: 10px; font-size: .62rem; padding: 3px 8px; gap: 5px; }
+      .preuve-duo .point-bleu { width: 8px; height: 8px; }
+      .preuve-duo .preuve-bas { bottom: 10px; font-size: .68rem; padding: 3px 8px 3px 6px; }
+      .preuve-duo .preuve-bas svg { width: 11px; height: 11px; }
+    }
+
+    /* les cadres défilent en boucle, comme les avis */
+    .preuve { padding-left: 0; padding-right: 0; overflow: hidden; }
+    .preuve-duo { flex-wrap: nowrap; justify-content: flex-start; width: max-content; max-width: none; gap: 0; padding: 6px 0 30px; animation: defile 22s linear infinite; }
+    .preuve:hover .preuve-duo { animation-play-state: paused; }
+    .preuve-duo .preuve-photo { flex: 0 0 auto; width: 320px; max-width: none; margin: 0 16px 0 0; }
+    @media (max-width: 640px) { .preuve-duo .preuve-photo { flex: 0 0 auto; width: 230px; margin-right: 12px; } }
+    @media (prefers-reduced-motion: reduce) { .preuve-duo { animation: none; } }
 
     /* Globe qui tourne */
     .globe-section { padding: 10px 20px 30px; }
@@ -370,7 +401,8 @@
     document.getElementById("avis").innerHTML = cartes + cartes;
   </script>
 
-  <section class="preuve" aria-label="Exemple de position système">
+  <section class="preuve" aria-label="Exemples de position">
+    <div class="preuve-duo">
     <figure class="preuve-photo">
       <img src="img/dubai.webp" alt="Carte de Dubaï avec le point bleu de la position système près du Burj Khalifa" width="720" height="720">
       <figcaption class="preuve-haut"><span class="point-bleu" aria-hidden="true"></span>Position système</figcaption>
@@ -379,11 +411,48 @@
         Dubai
       </div>
     </figure>
+    <figure class="preuve-photo photo-mia">
+      <img src="miami-snap.jpg" alt="Carte de Miami Beach avec le point bleu de la position système" width="720" height="720" loading="lazy">
+      <figcaption class="preuve-haut"><span class="point-bleu" aria-hidden="true"></span>Position système</figcaption>
+      <div class="preuve-bas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.500a2.5 2.5 0 0 1 0 5z"/></svg>
+        Miami
+      </div>
+    </figure>
+    <figure class="preuve-photo photo-sg">
+      <img src="singapour-snap.webp" alt="Carte Snapchat de Singapour" width="720" height="720" loading="lazy">
+      <figcaption class="preuve-haut"><span class="point-bleu point-rouge" aria-hidden="true"></span>Sur ta map</figcaption>
+      <div class="preuve-bas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.500a2.5 2.5 0 0 1 0 5z"/></svg>
+        Singapour
+      </div>
+    </figure>
+    <figure class="preuve-photo photo-dxb2">
+      <img src="dubai-map-snap.webp" alt="Carte Snapchat de Dubaï, ton bitmoji sur Palm Jumeirah" width="720" height="720" loading="lazy">
+      <figcaption class="preuve-haut"><span class="point-bleu point-rouge" aria-hidden="true"></span>Sur ta map</figcaption>
+      <div class="preuve-bas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.500a2.5 2.5 0 0 1 0 5z"/></svg>
+        Dubai
+      </div>
+    </figure>
+    </div>
   </section>
+
+  <script>
+    // Duplique les cadres pour que le défilement boucle sans coupure
+    (function () {
+      var piste = document.querySelector(".preuve-duo"); if (!piste) return;
+      Array.prototype.slice.call(piste.children).forEach(function (c) {
+        var d = c.cloneNode(true); d.setAttribute("aria-hidden", "true");
+        Array.prototype.forEach.call(d.querySelectorAll("img"), function (i) { i.alt = ""; i.removeAttribute("loading"); });
+        piste.appendChild(d);
+      });
+    })();
+  </script>
 
   <section class="globe-section" id="globe-section" aria-label="Nos destinations">
     <h2 class="globe-titre">Où veux-tu apparaître ?</h2>
-    <p class="globe-texte">C'est l'été, tes potes partent en Espagne, en Thaïlande et toi ta loc ne bouge pas, toujours dans le même quartier en bas du bloc.</p>
+    <p class="globe-texte">Tu choisis un point sur la carte et tes amis te voient là-bas en direct.</p>
     <canvas id="globe" role="img" aria-label="Globe terrestre en rotation avec nos destinations"></canvas>
     <div class="globe-cta"><a href="teleportation.html" class="btn">Activer ma téléportation</a></div>
   </section>

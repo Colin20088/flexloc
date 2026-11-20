@@ -66,8 +66,9 @@
           if (!email) { location.replace('connexion.html'); return; }
           // Abonnement + pack : un seul paiement qui additionne les deux. Si ce n'est pas possible : deux paiements à la suite.
           var combine = suite === 'pack';
-          a.creerPaiement(cle, combine ? '' : suite, combine).then(function (r) {
-            if (r && r.purchase_url) return aller(r.purchase_url);
+          var premier = a.prepaiement ? a.prepaiement(cle, combine ? '' : suite, combine).then(function (u) { return { purchase_url: u }; }) : a.creerPaiement(cle, combine ? '' : suite, combine);
+          premier.then(function (r) {
+            if (r && r.purchase_url) { if (a.oublierPaiement) a.oublierPaiement(cle, combine ? '' : suite, combine); return aller(r.purchase_url); }
             console.warn('Session de paiement non créée :', r && r.erreur);
             if (!combine) return aller(secoursUrl);
             a.creerPaiement(cle, suite, false).then(function (r2) {

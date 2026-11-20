@@ -62,13 +62,16 @@
   }
 
   api.google = function () {
+    reafficherOffre();
     return pret.then(function (c) {
       return c.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: page('offre.html') } });
     }).then(function (r) { return r.error ? { erreur: traduire(r.error) } : { ok: true }; })
       .catch(function (e) { return { erreur: traduire(e) }; });
   };
 
+  function reafficherOffre() { try { sessionStorage.removeItem('flexloc_indet_vu'); } catch (e) {} }
   api.connexion = function (email, mdp) {
+    reafficherOffre();
     return pret.then(function (c) { return c.auth.signInWithPassword({ email: email, password: mdp }); })
       .then(function (r) { return r.error ? { erreur: traduire(r.error) } : { ok: true }; })
       .catch(function (e) { return { erreur: traduire(e) }; });
@@ -102,6 +105,58 @@
         });
       });
     }).catch(function (e) { return { erreur: (e && e.message) || 'Erreur réseau.' }; });
+  };
+
+  // Paiement pré-enregistré : la session de paiement Whop est créée à l'avance (dès que la formule est cochée),
+  // pour que le clic sur « Continuer » ouvre la page de paiement sans aucune attente.
+  var PREFIXE = 'flexloc_pay_', VALIDE_MS = 10 * 60 * 1000, enCours = {};
+  function cleCache(uid, cle, suite, avecPack) { return PREFIXE + uid + '|' + cle + '|' + (suite || '') + '|' + (avecPack ? 1 : 0); }
+  function lireCache(k) {
+    try {
+      var v = JSON.parse(sessionStorage.getItem(k) || 'null');
+      if (v && v.url && Date.now() - v.t < VALIDE_MS) return v.url;
+      sessionStorage.removeItem(k);
+    } catch (e) {}
+    return '';
+  }
+  api.prepaiement = function (cle, suite, avecPack) {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        var session = r.data && r.data.session;
+        if (!session) return '';
+        var k = cleCache(session.user.id, cle, suite, avecPack);
+        var deja = lireCache(k); if (deja) return deja;
+        if (enCours[k]) return enCours[k];
+        enCours[k] = api.creerPaiement(cle, suite, avecPack).then(function (res) {
+          delete enCours[k];
+          if (res && res.purchase_url) { try { sessionStorage.setItem(k, JSON.stringify({ url: res.purchase_url, t: Date.now() })); } catch (e) {} return res.purchase_url; }
+          return '';
+        });
+        return enCours[k];
+      });
+    }).catch(function () { return ''; });
+  };
+  // Une session de paiement ne sert qu'une fois : on la retire du cache quand on s'en sert
+  api.oublierPaiement = function (cle, suite, avecPack) {
+    return pret.then(function (c) { return c.auth.getSession(); }).then(function (r) {
+      var s = r.data && r.data.session; if (s) { try { sessionStorage.removeItem(cleCache(s.user.id, cle, suite, avecPack)); } catch (e) {} }
+    }).catch(function () {});
+  };
+  // Achat en 1 clic de l'offre « Indétectable » (voir supabase/7-fonction-acheter-indetectable.ts)
+  api.acheterIndetectable = function () {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        var session = r.data && r.data.session;
+        if (!session) return { statut: 'echec', detail: 'Connexion requise.' };
+        return fetch(cfg.url + '/functions/v1/acheter-indetectable', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token, apikey: cfg.anonKey },
+          body: '{}'
+        }).then(function (rep) {
+          return rep.json().catch(function () { return {}; }).then(function (d) { return d && d.statut ? d : { statut: 'echec', detail: 'Erreur ' + rep.status }; });
+        });
+      });
+    }).catch(function (e) { return { statut: 'echec', detail: (e && e.message) || 'Erreur réseau.' }; });
   };
 
   // Achat en 1 clic de « Téléportation illimitée » avec la carte déjà enregistrée (voir supabase/6-fonction-acheter-illimite.ts)
@@ -146,7 +201,7 @@
 
   // Abonnement actif (hors Pack voyageur) ? Même règle que « Mon espace » : en cours, ou résilié mais payé jusqu'à la fin.
   api.estActif = function (a) {
-    return !!a && a.offre !== 'pack' && a.offre !== 'illimite' && (a.status === 'active' || a.status === 'trialing' ||
+    return !!a && a.offre !== 'pack' && a.offre !== 'illimite' && a.offre !== 'indetectable' && (a.status === 'active' || a.status === 'trialing' ||
       (a.cancel_at_period_end && a.current_period_end && new Date(a.current_period_end) > new Date()));
   };
 
