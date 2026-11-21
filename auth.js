@@ -199,6 +199,19 @@
     }).catch(function (e) { return { connecte: false, erreur: traduire(e) }; });
   };
 
+  // Statistiques du site (réservées à l'administrateur : le serveur refuse tout autre compte, voir supabase/8-statistiques.sql)
+  api.statistiques = function (jours) {
+    return pret.then(function (c) {
+      return c.auth.getSession().then(function (r) {
+        if (!(r.data && r.data.session)) return { connecte: false };
+        return c.rpc('stats_admin', { p_jours: jours || 30 }).then(function (res) {
+          if (res.error) return { connecte: true, email: r.data.session.user.email, erreur: res.error.message };
+          return { connecte: true, email: r.data.session.user.email, stats: res.data };
+        });
+      });
+    }).catch(function (e) { return { connecte: false, erreur: traduire(e) }; });
+  };
+
   // Abonnement actif (hors Pack voyageur) ? Même règle que « Mon espace » : en cours, ou résilié mais payé jusqu'à la fin.
   api.estActif = function (a) {
     return !!a && a.offre !== 'pack' && a.offre !== 'illimite' && a.offre !== 'indetectable' && (a.status === 'active' || a.status === 'trialing' ||
