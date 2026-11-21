@@ -33,6 +33,17 @@
       '<li><a href="espace.html" class="lien-espace">Mon espace</a></li>' +
       '<li><button type="button" class="nav-cta" id="deconnexion">Se déconnecter</button></li>';
 
+    // Administrateur : lien vers les statistiques (le serveur reste seul juge de l'accès, voir supabase/8-statistiques.sql)
+    if (window.flexlocAuth && window.flexlocAuth.email) {
+      window.flexlocAuth.email().then(function (mail) {
+        if (!mail || mail.toLowerCase() !== 'colin.lawson6808@gmail.com' || !ul.classList.contains('connecte')) return;
+        if (ul.querySelector('a.lien-stats')) return;
+        var li = document.createElement('li');
+        li.innerHTML = '<a href="admin.html" class="lien-espace lien-stats" title="Statistiques" aria-label="Statistiques" style="padding-left:2px;padding-right:2px">📊</a>';
+        ul.insertBefore(li, ul.firstChild);
+      });
+    }
+
     document.getElementById('deconnexion').addEventListener('click', function () {
       var fin = function () { try { localStorage.removeItem(CLE); } catch (e) {} location.reload(); };
       if (window.flexlocAuth && window.flexlocAuth.configure) window.flexlocAuth.deconnexion().then(fin); else fin();
