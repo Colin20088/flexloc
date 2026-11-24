@@ -59,7 +59,7 @@
     h1 span { background: var(--jaune); padding: 0 .15em; border-radius: 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
     .carte {
-      background: #0d0d12; border-radius: 24px; overflow: hidden;
+      position: relative; background: #0d0d12; border-radius: 24px; overflow: hidden;
       box-shadow: 0 8px 32px rgba(0,0,0,.18);
     }
     .carte canvas { display: block; width: 100%; height: auto; }
@@ -204,6 +204,16 @@
         ctx.lineWidth = 2; ctx.strokeStyle = '#0d0d12'; ctx.stroke();
       }
 
+      // Fin de l'animation : le titre change et le bouton devient actif
+      function terminer() {
+        if (fini) return; fini = true;
+        legende.textContent = texte(1);
+        document.getElementById('titre').innerHTML = 'Ta loc est à <span></span>';
+        document.querySelector('#titre span').textContent = dest.nom;
+        var bouton = document.getElementById('teleporter');
+        bouton.removeAttribute('aria-disabled');
+        bouton.removeAttribute('tabindex');
+      }
       var interp = d3.geoInterpolate(depart.coord, dest.coord);
       var graticule = d3.geoGraticule10();
       var DUREE = 8000, debut = null, fini = false;
@@ -260,16 +270,8 @@
         if (debut === null) debut = ts;
         var t = Math.min(1, (ts - debut) / DUREE);
         image(t);
-        legende.textContent = texte(t);
-        if (t < 1) requestAnimationFrame(etape);
-        else if (!fini) {
-          fini = true;
-          document.getElementById('titre').innerHTML = 'Ta loc est à <span></span>';
-          document.querySelector('#titre span').textContent = dest.nom;
-          var bouton = document.getElementById('teleporter');
-          bouton.removeAttribute('aria-disabled');
-          bouton.removeAttribute('tabindex');
-        }
+        if (t < 1) { legende.textContent = texte(t); requestAnimationFrame(etape); }
+        else terminer();
       }
 
       window.addEventListener('resize', function () { if (taille() && fini) image(1); });

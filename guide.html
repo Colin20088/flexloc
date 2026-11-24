@@ -99,6 +99,7 @@
           <small>ÉTAPE <span id="etape-n"></span></small>
           <h2 id="titre"></h2>
           <a class="btn" id="ouvrir-app" href="#" target="_blank" rel="noopener" hidden style="margin:0 0 16px">Ouvrir l'application</a>
+          <button type="button" class="btn clair" id="copier-lien" hidden style="margin:0 0 16px 8px">Copier le lien</button>
           <p id="texte"></p>
           <div class="attention" id="attention" hidden></div>
         </section>
@@ -115,6 +116,10 @@
   <script>
     (function () {
       // Étapes du guide (reprises de l'app)
+      // Abonnement annuel : l'application sur téléphone. Autres abonnements : l'application sur ordinateur.
+      var ETAPES_PC = [
+        { titre: "Installe l'application Flexloc (sur ordinateur)", texte: "Avec ton abonnement, l'application Flexloc s'utilise depuis un ordinateur : va sur ton ordinateur pour l'ouvrir.\n\n1. Ouvre le lien ci-dessus depuis ton ordinateur (Chrome, Edge ou Safari). Tu es sur téléphone ? Touche « Copier le lien » puis envoie-le-toi pour l'ouvrir sur ton ordinateur.\n2. Connecte-toi avec le même e-mail que sur Flexloc.\n3. Choisis ta ville et lance la téléportation.", attention: "L'application sur téléphone est réservée à l'abonnement annuel." }
+      ];
       var ETAPES = [
         { titre: "Installe l'application Flexloc", texte: "C'est avec l'application Flexloc que tu changes ta position. Installe-la en 30 secondes :\n\n1. Touche « Ouvrir l'application » ci-dessus.\n\niPhone (avec Safari) :\n2. Touche le bouton Partager (le carré avec une flèche vers le haut, en bas de l'écran ; parfois derrière les trois points « … »).\n3. Fais défiler et touche « Sur l'écran d'accueil », puis « Ajouter » en haut à droite.\n\nAndroid (avec Chrome) :\n2. Touche les trois points « ⋮ » en haut à droite.\n3. Touche « Ajouter à l'écran d'accueil » (ou « Installer l'application »), puis confirme avec « Ajouter ».\n\nL'icône apparaît sur ton écran d'accueil : ouvre-la pour choisir ta ville et te téléporter." }
       ];
@@ -165,7 +170,25 @@
           if (r.erreur || !(r.abonnements || []).some(actif)) { el('refus').hidden = false; return; }
           // Lien vers l'application (adresse définie dans config.js)
           var cfg = window.FLEXLOC_SUPABASE || {};
-          if (cfg.appUrl) { el('ouvrir-app').href = cfg.appUrl; el('ouvrir-app').hidden = false; }
+          var annuel = (r.abonnements || []).some(function (a) {
+            return a.offre === 'annuel' && actif(a);
+          });
+          var adresse = annuel ? cfg.appUrl : (cfg.appUrlOrdinateur || cfg.appUrl);
+          if (!annuel) {
+            ETAPES[0] = ETAPES_PC[0];                          // abonnement non annuel : application sur ordinateur
+            el('ouvrir-app').textContent = "Ouvrir l'application (ordinateur)";
+          }
+          if (adresse) {
+            el('ouvrir-app').href = adresse; el('ouvrir-app').hidden = false;
+            if (!annuel) {
+              el('copier-lien').hidden = false;
+              el('copier-lien').addEventListener('click', function () {
+                var b = this, fini = function (t) { b.textContent = t; setTimeout(function () { b.textContent = 'Copier le lien'; }, 2200); };
+                if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(adresse).then(function () { fini('Lien copié ✓'); }, function () { fini(adresse); });
+                else fini(adresse);
+              });
+            }
+          }
           afficher();
           el('guide').hidden = false;
         });
